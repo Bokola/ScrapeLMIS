@@ -11,32 +11,7 @@ almost unchanged. `scraper.py` is new - SIMAM is a different platform
 (OpenLMIS-based) with a completely different login flow, navigation, and
 export mechanism.
 
-## What's confirmed vs. guessed
 
-Only three things about the real SIMAM DOM are confirmed (because you gave
-them to me directly):
-1. The `Analytics Reports` dropdown markup (`a[bs-dropdown]`).
-2. The results-menu ellipsis icon (`svg[aria-label="ellipsis icon"]`).
-3. The `Download results` menu item text, with `.csv`/`.xlsx` as sibling
-   options.
-
-Everything else - the login form's field names, the exact "Requisition Data
-Report" link markup, how to tell the results table has finished rendering,
-and the xlsx option's exact label - is a best-effort guess in
-`config.yaml`, following the same "ordered list, first match wins"
-selector style the original pipeline used. **Run with `headless: false` the
-first time** and watch it; when a selector misses, check
-`run_data/screenshots/` for the screenshot + per-frame HTML dump and update
-the matching list in `config.yaml`. See `SKILL.md` for the full checklist.
-
-## Why the layout matters
-
-Every module uses relative imports like `from .config import Config`. That
-only works when the file is executed as part of the installed
-`lmis_mz_pipeline` package - e.g. `python -m lmis_mz_pipeline.main`. Running
-a file directly always fails with `ImportError: attempted relative import
-with no known parent package`. Always invoke through `-m` or the console
-script.
 
 ## Setup
 
