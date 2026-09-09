@@ -90,8 +90,7 @@ main.py
   `credentials.username_env` / `password_env` in `config.yaml`
   (`LMIS_username` / `LMIS_pass` by default).
 - **A `first_match()` / `ScraperError` failure on first run**
-  Expected the first time - see "What's confirmed vs. guessed" above.
-  Check `run_data/screenshots/<timestamp>_<tag>.png` and the matching
+  Expected the first time. Check `run_data/screenshots/<timestamp>_<tag>.png` and the matching
   `_frameN.html` dumps, then update the relevant selector list in
   `config.yaml`.
 - **Playwright browser download fails / blocked host**
