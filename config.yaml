@@ -1,0 +1,360 @@
+# ----------------------------------------------------------------------------
+# SIMAM (LMIS Mozambique) automation config. Everything here is hot-swappable
+# without code edits.
+#
+# Adapted from the GFPVAN/e2open pipeline this project started from. SIMAM
+# is a different platform entirely (OpenLMIS-based, Angular shell + what
+# looks like a newer React/Mantine report viewer embedded in it) - almost
+# nothing about the real DOM below is confirmed against the live site yet.
+# Sections marked "CONFIRMED" came directly from things you already gave me
+# (the dropdown markup, the download-results icon/menu markup). Everything
+# else is a best-effort guess in the same "ordered list, first match wins"
+# style as the original config, and needs a headless: false run to verify -
+# see SKILL.md.
+# ----------------------------------------------------------------------------
+
+headless: false         # set true once everything is confirmed and you want it running unattended
+root: "./run_data"      # base dir; scraper creates root/screenshots under this
+
+browser:
+  stealth: true                                   # apply playwright-stealth to the context
+  locale: "pt-MZ"                                  # SIMAM's data/labels are Portuguese (Mozambique)
+  timezone: "Africa/Maputo"
+  storage_state_path: "./run_data/storage_state.json"  # persisted session, reused across runs
+
+credentials:
+  # Names as you specified - resolved from the environment (or a .env file),
+  # never read from this file itself.
+  username_env: "LMIS_username"
+  password_env: "LMIS_pass"
+
+urls:
+  home: "https://simam.cmam.gov.mz/#!/home"
+  # SIMAM is a client-side (Angular) app behind a "#!/" hash route - an
+  # unauthenticated visit to home should redirect to a login screen, but
+  # the exact login URL/route isn't confirmed. login() below just goes to
+  # `home` and waits for a login form to appear rather than hardcoding a
+  # separate login URL.
+  #
+  # Optional: a Playwright glob/regex confirmed against the real post-login
+  # redirect (e.g. "**/#!/home**"). Without this, login() falls back to
+  # "a logged-in-only nav element becomes visible" - see
+  # selectors.nav.analytics_reports_dropdown.
+  # login_success_pattern: "**/#!/home**"
+
+# Pagination + timing
+timeouts:
+  navigation_ms: 60000
+  action_ms: 30000
+  short_ms: 5000
+  report_run_ms: 45000       # NOT CONFIRMED: how long the requisition report can take to
+                              # render its results table for the whole country before we
+                              # give up. Guessed generously (37k+ rows in the sample export) -
+                              # tighten once you've timed a real run.
+  download_ms: 600000        # how long to wait for the actual file download to start after
+                              # clicking Download. The "Download data" panel itself explicitly
+                              # warns "Your answer has a large number of rows so it could take
+                              # a while to download" (confirmed via a real diagnostics capture),
+                              # and a real run showed the click succeeding (panel closes clean,
+                              # no error shown) but still not completing within 180s - raised to
+                              # 10 minutes. Raise further if a run still times out here.
+  frame_scan_ms: 1000
+
+retry:
+  max_attempts: 3
+  backoff_seconds: 5
+
+  # Human-paced login retry (kept from the original pipeline - if SIMAM ever
+  # starts rate-limiting or soft-locking after repeated attempts, this is
+  # already wired up; harmless if it never triggers).
+  login:
+    max_attempts: 4
+    base_wait_seconds: 300
+    backoff_multiplier: 1.5
+    max_wait_seconds: 1800
+    jitter_max_seconds: 45
+
+ui:
+  # Switch SIMAM's UI to English right after login. Purely a convenience -
+  # doesn't affect the downloaded data (the report's own column headers are
+  # confirmed Portuguese either way, per excel_columns below) - but English
+  # nav labels are more stable to write/read selectors against than
+  # Portuguese ones, so this runs before any report navigation.
+  force_english: true
+
+output:
+  dir: "./run_data/extracts"             # local folder the processed .xlsx lands in
+  sheet_name: "Query result"             # matches the sample file's sheet name
+  master_filename: "lmis_mz_master.xlsx" # persistent workbook, upserted via dedup_key
+  download_dir: "./run_data/downloads"   # where the browser's raw "Download results" file lands
+  log_dir: "./run_data/logs"             # one timestamped pipeline_YYYYMMDD_HHMMSS.log per run
+
+landing:
+  dir: "./run_data/landing"        # raw downloaded file staged here, untouched, before any
+                                    # validation/reshaping - same "never lose the raw capture"
+                                    # convention as the original pipeline
+
+validation:
+  fail_on_error: true              # true: halt before writing the master .xlsx on a failed check
+                                    # false: log a warning and write anyway (landing file always kept)
+
+reconciliation:
+  tolerance_pct: 1.0
+  kpi_columns: []                  # e.g. ["Stock teórico", "Inventário"] once you have a manual
+                                    # baseline export to check against
+  group_by: "Província"
+
+filters:
+  # Optional: restrict the Requisition Data Report to specific products via
+  # its "Nome do produto" dashboard filter, instead of pulling every
+  # product in the country. Leave empty (`products: []`) to skip filtering
+  # entirely and pull everything, same as before this section existed.
+  #
+  # Names must match SIMAM's own product master data EXACTLY, including
+  # punctuation. Pasted verbatim into the filter's bulk-entry field, one
+  # per line - joined with NEWLINE, not comma, even though the widget also
+  # accepts comma/tab as separators: several of these names contain a
+  # literal comma of their own (e.g. "0,2%"), so joining the whole list
+  # with commas would corrupt those entries. Newline has no such collision
+  # risk with any of these values.
+  verify_applied: true    # after applying, confirm the report's own embedded
+                          # dashboard URL actually shows every requested product
+                          # filtered - refuses to proceed to download otherwise.
+                          # Safety net against a click sequence that completes
+                          # without error but silently registered nothing, which
+                          # would otherwise download the ENTIRE unfiltered report
+                          # with no warning. Set false only if this ever produces
+                          # a false positive (e.g. Metabase changes its URL scheme).
+  products:
+    - "Copper T380 dispositivo ; 0,2%; DIU"
+    - "Etonogestrel ; 68 mg(Implanon NXT); Implante"
+    - "Jadelle; 150mg; Implante"
+    - "Levoplant ; 75mg; Implante"
+    - "Medroxiprogesterona (Sayana Press); 104mg/0.65ml; Inj"
+    - "Medroxiprogesterona acetate.; 150mg/mL; Inj"
+    - "Medroxiprogesterona acetato; 5mg; Comp"
+
+# Selectors - ordered list, first match wins. Update here if the DOM changes.
+# "CONFIRMED" markers below mean you gave me this markup directly; everything
+# else is an unverified guess - see SKILL.md's "what to confirm first" list.
+selectors:
+  common:
+    modal_dismiss_button:
+      - "button:has-text('OK')"
+      - "button:has-text('Close')"
+      - "[aria-label='Close']"
+      - ".modal.in button.close"
+
+    # CONFIRMED markup for the CLOSED state (you provided this): a
+    # bs-dropdown button showing the current language, defaulting to
+    # "Português". Matched by testing both languages so this is idempotent -
+    # if it's already showing "English" (e.g. a previous run already
+    # switched it, or a reused session), set_language_english() below just
+    # does nothing instead of clicking blind.
+    language_dropdown_button:
+      - "button[bs-dropdown]:has-text('Português')"
+      - "button[bs-dropdown]:has-text('English')"
+    # NOT CONFIRMED: only the closed button's markup was given, not what the
+    # opened menu's "English" option looks like. Guessed candidates below -
+    # if set_language_english() fails, dump_diagnostics will show the real
+    # opened-menu markup to fix this from.
+    language_option_english:
+      - "[role='menuitem']:has-text('English')"
+      - "a:has-text('English')"
+      - "li:has-text('English') a"
+      - "button:has-text('English')"
+      - "text=English"
+
+    # CONFIRMED markup (from a real diagnostics capture): OpenLMIS shows this
+    # global modal spinner while an async action (e.g. the login POST) is in
+    # flight. Waited on after any action that triggers a background request,
+    # so a check like "are we logged in yet" doesn't run mid-request and
+    # misreport a failure.
+    loading_overlay:
+      - ".loading-modal"
+      - ".modal-dialog.loading-modal"
+
+  login:
+    # CONFIRMED markup (you provided this): real ids from SIMAM's own login
+    # page, an AngularJS form bound via ng-model="vm.username"/"vm.password".
+    username_input:
+      - "#login-username"
+      - "input[name='vm.username']"
+    password_input:
+      - "#login-password"
+      - "input[name='vm.password']"
+    submit_button:
+      - "#login-button"
+      - "input[type='submit']"
+      - "button[type='submit']"
+    # NOT CONFIRMED: only know the error case renders via ng-if="vm.loginError"
+    # inside the form - a real failed-login capture would confirm the exact
+    # element/text (it's currently empty in the one capture we have, since
+    # that failure was a false alarm - see loading_overlay above).
+    login_error_banner:
+      - "text=/credenciais inv[aá]lidas/i"
+      - "text=/invalid credentials/i"
+      - ".alert-danger"
+      - ".has-error"
+
+  nav:
+    # CONFIRMED markup (you provided this): the AngularJS bs-dropdown
+    # top-nav item. Matched by its visible text since the class list
+    # ("ng-scope ng-binding") is generated, not stable.
+    analytics_reports_dropdown:
+      - "a[bs-dropdown]:has-text('Analytics Reports')"
+      - "a:has-text('Analytics Reports')"
+    # NOT CONFIRMED: assumed to be a plain link/menu item inside the
+    # dropdown, matched by its exact label.
+    requisition_report_link:
+      - "a:has-text('Requisition Data Report')"
+      - "li:has-text('Requisition Data Report') a"
+      - "text=Requisition Data Report"
+    # CONFIRMED from a real diagnostics capture: this is true immediately on
+    # login regardless of whether the nav menu (vm.states, see
+    # analytics_reports_dropdown above) has finished rendering yet - unlike
+    # the dropdown itself, which depends on a separate, possibly slower,
+    # request AND on the logged-in user actually holding the right to see
+    # that menu item. Use this to answer "did login succeed" and use
+    # analytics_reports_dropdown separately to answer "can this user see
+    # the report" - conflating the two produced a false "login failed" on a
+    # real run where login had actually succeeded.
+    logged_in_indicator:
+      - "button:has-text('Terminar sessão')"
+      - "button:has-text('Sign Out')"
+      - "text=/Sess[ãa]o iniciada como/i"
+
+  report:
+    # CONFIRMED from a real diagnostics capture: the report is embedded via
+    # an iframe pointing at a separate Metabase instance
+    # (prod-metabase.siglus.us), NOT rendered natively by SIMAM/OpenLMIS.
+    # Metabase's table visualization is a virtualized grid, not a literal
+    # <table> - it never had semantic table markup to match in the first
+    # place. Scoped to the specific dashcard whose data-viz-ui-name is
+    # "Table" (Metabase dashboards can hold other card types too, e.g.
+    # filters or charts) so this can't accidentally match a different card.
+    results_table:
+      - '[data-testid="dashcard"]:has([data-viz-ui-name="Table"]) [data-testid="table-root"]'
+      - '[data-testid="table-root"]'
+      - '[data-testid="table-scroll-container"]'
+    loading_indicator:
+      - ".loading"
+      - "[aria-busy='true']"
+      - "text=/a carregar/i"
+      - "text=/loading/i"
+
+    # CONFIRMED markup (you provided this): the kebab/ellipsis icon that
+    # opens the results menu - now known to be Metabase's own
+    # "public-or-embedded-dashcard-menu" action, confirmed via a real
+    # diagnostics capture. Scoped to the Table dashcard, same reasoning as
+    # results_table above; the plain aria-label match is kept as a fallback
+    # in case a future Metabase version renames the data-testid.
+    ellipsis_menu_button:
+      - '[data-testid="dashcard"]:has([data-viz-ui-name="Table"]) [data-testid="public-or-embedded-dashcard-menu"]'
+      - '[data-testid="public-or-embedded-dashcard-menu"]'
+      - "button:has(svg[aria-label='ellipsis icon'])"
+      - "[role='button']:has(svg[aria-label='ellipsis icon'])"
+
+    # CONFIRMED text (you provided this): the "Download results" menu item.
+    # Matched by text rather than the hashed Mantine CSS-module class
+    # ("m_5476e0d3...") since that hash is a build artifact and will change
+    # across app deploys/rebuilds - the visible label is the stable part.
+    download_results_item:
+      - "text=Download results"
+      - "[role='menuitem']:has-text('Download results')"
+
+    # CONFIRMED markup (you provided this): choosing xlsx doesn't trigger
+    # the download itself - it's one option in a Mantine SegmentedControl
+    # (.csv/.xlsx/.json), matched by its stable innerLabel class + exact
+    # text. A separate "Download" button (below) is what actually fires
+    # the download.
+    xlsx_format_option:
+      - ".mb-mantine-SegmentedControl-innerLabel:text-is('.xlsx')"
+      - "span:text-is('.xlsx')"
+      - "text=.xlsx"
+
+    # CONFIRMED markup (from a real diagnostics capture of the actual
+    # "Download data" panel): the real download-triggering button, with a
+    # stable data-testid - matched first for robustness, with the exact
+    # visible text ("Download") kept as a fallback. An earlier version of
+    # this config had an extra apply_button entry inserted here based on a
+    # misread unrelated "Apply" button (almost certainly belonging to the
+    # separate product-filter widget, not this panel - its CSS classes
+    # didn't match this panel's Mantine styling at all) - removed, since
+    # this button fires the download directly with no separate confirm
+    # step.
+    download_confirm_button:
+      - "button[data-testid='download-results-button']"
+      - "button:text-is('Download')"
+
+    # CONFIRMED markup (you provided this): the "Nome do produto" filter
+    # widget's label/trigger in the dashboard's parameter bar. Clicking it
+    # opens a product-search panel - see product_filter_search_input/
+    # apply_button below for what that panel actually is.
+    product_filter_widget:
+      - "div:text-is('Nome do produto')"
+      - "text=Nome do produto"
+    # CONFIRMED markup (from a real diagnostics capture): this is a Mantine
+    # PillsInput + Combobox widget, NOT a plain textarea - it's a
+    # search-as-you-type field backed by a dropdown of options
+    # (data-combobox-option divs, role="option") that's pre-loaded with the
+    # ENTIRE product catalog up front, not lazily fetched. Selecting one
+    # adds it as a removable "pill"; the widget supports adding several
+    # this way before applying.
+    product_filter_search_input:
+      - '[data-testid="field-values-widget"] input[role="combobox"]'
+      - "input[placeholder='Search the list']"
+    # CONFIRMED markup: the button that actually applies the selected
+    # product filter. Starts disabled (aria-disabled/disabled) until at
+    # least one product is selected - expected, not a bug, if seen before
+    # any product has been picked yet.
+    # CONFIRMED markup: the per-widget "Add filter" button that stages a
+    # selection within the "Nome do produto" popover itself.
+    product_filter_apply_button:
+      - "button[aria-label='Add filter']"
+      - "button:has-text('Add filter')"
+      - "button:has-text('Update filter')"
+
+    # CONFIRMED markup (you provided this, and a real screenshot proved
+    # why it's necessary): confirming the widget's own "Add filter" button
+    # only STAGES the selection - the filter chip shows "N selections" but
+    # the report keeps showing its previous (unfiltered) data. The
+    # dashboard shows a separate "N filter(s) changed / Cancel / Apply"
+    # banner that must ALSO be clicked to actually commit the change and
+    # re-run the report against it. This is a distinct button from
+    # product_filter_apply_button above - do not merge them.
+    dashboard_apply_button:
+      - "button[aria-label='Apply']"
+      - "button:text-is('Apply')"
+
+# Column order for the processed master workbook - matches the sample
+# LMIS_MZ_2026_04.xlsx export exactly. Anything extracted but not listed
+# here is appended at the end rather than dropped.
+excel_columns:
+  - "Província"
+  - "Distrito"
+  - "Tipo de instalação"
+  - "Código da instalação"
+  - "Nome da instalação"
+  - "Nome do relatório"
+  - "Período de análise"
+  - "Programa"
+  - "Código do produto"
+  - "Nome do produto"
+  - "Saldo inicial"
+  - "Entradas"
+  - "Saídas"
+  - "Ajustes"
+  - "Empréstimos"
+  - "Stock teórico"
+  - "Inventário"
+  - "Valor total"
+  - "Período"
+
+# Dedup key: rows in the master workbook matching this composite key get
+# updated in place on re-run rather than duplicated. One row per
+# facility + product + reporting period.
+dedup_key:
+  - "Código da instalação"
+  - "Código do produto"
+  - "Período de análise"
