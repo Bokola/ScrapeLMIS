@@ -105,6 +105,13 @@ reconciliation:
   group_by: "Província"
 
 filters:
+  # Optional: restrict the Requisition Data Report's "Período de análise"
+  # filter to the previous N months (e.g. 4 -> "previous 4 months").
+  # Leave null/0 to skip this and leave SIMAM's own default period as-is
+  # (confirmed default: 3 months, i.e. "past3months~" in the embedded
+  # dashboard's own URL).
+  period_months: 4
+
   # Optional: restrict the Requisition Data Report to specific products via
   # its "Nome do produto" dashboard filter, instead of pulling every
   # product in the country. Leave empty (`products: []`) to skip filtering
@@ -132,7 +139,6 @@ filters:
     - "Levoplant ; 75mg; Implante"
     - "Medroxiprogesterona (Sayana Press); 104mg/0.65ml; Inj"
     - "Medroxiprogesterona acetate.; 150mg/mL; Inj"
-    - "Medroxiprogesterona acetato; 5mg; Comp"
 
 # Selectors - ordered list, first match wins. Update here if the DOM changes.
 # "CONFIRMED" markers below mean you gave me this markup directly; everything
@@ -308,7 +314,34 @@ selectors:
     # product filter. Starts disabled (aria-disabled/disabled) until at
     # least one product is selected - expected, not a bug, if seen before
     # any product has been picked yet.
-    # CONFIRMED markup: the per-widget "Add filter" button that stages a
+    # CONFIRMED markup (you provided this): the "Período de análise" filter
+    # widget's label/trigger in the dashboard's parameter bar.
+    period_filter_widget:
+      - "div:text-is('Período de análise:\u00a0')"
+      - "text=Período de análise:"
+    # CONFIRMED markup: the "Previous" tab within the opened widget -
+    # already selected by default (aria-selected="true"), but the code
+    # checks for that and clicks only if it isn't already selected.
+    # Prioritizing the id suffix ("-tab-past") over text matching: Mantine
+    # generates this as {random-base-id}-tab-{value}, where {value} is a
+    # stable, semantic tab key ("past"), not part of the random portion -
+    # more robust than :text-is('Previous'), which failed to match in a
+    # real run despite the tab's markup looking exactly as expected.
+    period_filter_previous_tab:
+      - "[role='tab'][id$='-tab-past']"
+      - "button[id$='-tab-past']"
+      - "[role='tab']:text-is('Previous')"
+      - "button:text-is('Previous')"
+    # CONFIRMED markup: the numeric "how many months back" input.
+    period_filter_interval_input:
+      - "input[aria-label='Interval']"
+    # CONFIRMED markup: the per-widget confirm button - per the SAME lesson
+    # learned from the product filter, this almost certainly only STAGES
+    # the change (not separately confirmed for this specific widget, but
+    # reasoned by analogy since it's the same underlying dashboard
+    # mechanism) - report.dashboard_apply_button is clicked afterward too.
+    period_filter_update_button:
+      - "button:has-text('Update filter')"
     # selection within the "Nome do produto" popover itself.
     product_filter_apply_button:
       - "button[aria-label='Add filter']"

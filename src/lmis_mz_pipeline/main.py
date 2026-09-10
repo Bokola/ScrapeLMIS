@@ -40,6 +40,7 @@ def run(cfg: Config, baseline_path: Path | None = None) -> Path:
         try:
             s.open_requisition_report()
             s.set_product_filter(cfg.get("filters.products", []))
+            s.set_period_filter(cfg.get("filters.period_months"))
             downloaded_path = s.download_results_xlsx(download_dir)
         except ScraperError as e:
             raise PipelineError(f"Scraping the Requisition Data Report failed: {e}") from e

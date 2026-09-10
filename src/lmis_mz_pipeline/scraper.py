@@ -572,6 +572,87 @@ class LMISScraper:
             raise ScraperError(f"Requisition report results table never appeared: {e}") from e
 
     # ---------------------------------------------------------------- filtering
+    def set_period_filter(self, months: int | None) -> None:
+        """Restrict the Requisition Data Report's "Período de análise"
+        filter to the previous N months. A no-op if months is falsy/None -
+        SIMAM's own default period (confirmed: previous 3 months) is left
+        as-is.
+
+        CONFIRMED markup for the widget's label/trigger, its "Previous"
+        tab (already the default selection - clicked anyway for
+        robustness rather than assuming it stays the default forever),
+        the numeric interval input, and an "Update filter" button (all
+        via markup you provided). NOT SEPARATELY CONFIRMED for this
+        specific widget, but reasoned by direct analogy with
+        set_product_filter(): that per-widget confirm button almost
+        certainly only STAGES the change, same as the product filter's
+        own "Add filter" did - so the dashboard-level Apply banner
+        (report.dashboard_apply_button) is clicked afterward too, on the
+        assumption this is a dashboard-wide mechanism rather than
+        something specific to the product filter.
+        """
+        assert self.page is not None
+        if not months:
+            log.info("No period filter configured - leaving the report's default period as-is")
+            return
+
+        log.info("Opening the 'Período de análise' filter widget")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.period_filter_widget"), timeout_ms=15000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("period_filter_widget_not_found")
+            raise ScraperError(f"Could not open the period filter widget: {e}") from e
+
+        log.info("Selecting the 'Previous' tab")
+        try:
+            previous_tab = self.first_match(
+                self.cfg.selectors("report.period_filter_previous_tab"), timeout_ms=10000
+            )
+            if previous_tab.get_attribute("aria-selected") == "true":
+                log.info("'Previous' tab is already selected - skipping the click")
+            else:
+                self._click(previous_tab)
+        except ScraperError as e:
+            self.dump_diagnostics("period_filter_previous_tab_not_found")
+            raise ScraperError(f"Could not select the 'Previous' tab: {e}") from e
+
+        log.info("Setting the interval to %d month(s)", months)
+        try:
+            interval_input = self.first_match(
+                self.cfg.selectors("report.period_filter_interval_input"), timeout_ms=10000
+            )
+            interval_input.fill(str(months))
+        except ScraperError as e:
+            self.dump_diagnostics("period_filter_interval_input_not_found")
+            raise ScraperError(
+                f"Could not find the period filter's interval input: {e}"
+            ) from e
+
+        log.info("Updating the period filter")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.period_filter_update_button"), timeout_ms=10000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("period_filter_update_button_not_found")
+            raise ScraperError(f"Could not click Update filter: {e}") from e
+
+        log.info("Clicking the dashboard-level Apply banner to commit the period change")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.dashboard_apply_button"), timeout_ms=10000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("dashboard_apply_button_not_found")
+            raise ScraperError(
+                f"Could not find the dashboard-level Apply banner: {e}"
+            ) from e
+
+        self._wait_networkidle()
+        self._wait_for_results_table()
+
     def set_product_filter(self, products: list[str]) -> None:
         """Restrict the Requisition Data Report to specific products via its
         "Nome do produto" dashboard filter widget, then wait for the
