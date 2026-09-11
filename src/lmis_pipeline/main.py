@@ -4,7 +4,7 @@
     results (xlsx) -> stage raw -> validate schema -> upsert into master
     workbook -> (optional) reconcile against a manual baseline.
 
-Run with: uv run python -m lmis_mz_pipeline.main [--baseline path/to/manual_download.xlsx]
+Run with: uv run python -m lmis_pipeline.main [--baseline path/to/manual_download.xlsx]
 """
 from __future__ import annotations
 

@@ -11,7 +11,7 @@ this was adapted from. Use this checklist the first time you run it.
 
 1. Set `headless: false` in `config.yaml` so you can watch the browser.
 2. `cp .env.example .env` and fill in real `LMIS_username` / `LMIS_pass`.
-3. `uv run python -m lmis_mz_pipeline.main`
+3. `uv run python -m lmis_pipeline.main`
 
 ## What to watch for, in order
 

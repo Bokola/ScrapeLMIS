@@ -1,0 +1,48 @@
+2026-09-11 11:33:36 INFO     __main__: Logging this run to run_data_malawi\logs\pipeline_20260911_113336.log
+2026-09-11 11:33:36 INFO     __main__: Will generate the report for 4 period(s): ['Jun2026', 'Jul2026', 'Aug2026', 'Sep2026']
+2026-09-11 11:33:38 INFO     lmis_pipeline.scraper_base: No saved session state found - will need a fresh login
+2026-09-11 11:33:38 INFO     lmis_pipeline.scraper_base: Applied playwright-stealth evasions to browser context
+2026-09-11 11:33:38 INFO     lmis_pipeline.malawi_scraper: Navigating to Malawi LMIS
+2026-09-11 11:33:47 INFO     lmis_pipeline.malawi_scraper: Entering username
+2026-09-11 11:33:47 INFO     lmis_pipeline.malawi_scraper: Entering password
+2026-09-11 11:33:47 INFO     lmis_pipeline.malawi_scraper: Submitting login form
+2026-09-11 11:33:49 INFO     lmis_pipeline.malawi_scraper: Dismissing weak-password warning modal
+2026-09-11 11:33:53 INFO     lmis_pipeline.malawi_scraper: Login successful
+2026-09-11 11:33:53 INFO     lmis_pipeline.malawi_scraper: Saved session state to run_data_malawi\storage_state.json
+2026-09-11 11:33:53 INFO     __main__: === Period: Jun2026 ===
+2026-09-11 11:33:53 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-09-11 11:33:54 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-09-11 11:34:01 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-09-11 11:34:01 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: Reproductive Health
+2026-09-11 11:34:07 INFO     lmis_pipeline.scraper_base: Screenshot saved: 20260911_113407_select2_search_input_not_found_Program_Name.png
+2026-09-11 11:34:07 INFO     lmis_pipeline.scraper_base: Saved frame 0 HTML (url=https://lmis.health.gov.mw/#!/reports/list/malawi/93d09638-4dc7-4c94-a9f2-e80b5c62408e/options) to run_data_malawi\screenshots\20260911_113407_select2_search_input_not_found_Program_Name_frame0.html
+2026-09-11 11:34:07 INFO     lmis_pipeline.scraper_base: Frames present on page (1 total): ['https://lmis.health.gov.mw/#!/reports/list/malawi/93d09638-4dc7-4c94-a9f2-e80b5c62408e/options']
+2026-09-11 11:34:07 ERROR    __main__: Generating the report for period Jun2026 failed: Could not find the search box for 'Program Name' after opening it: None of the selectors matched in any frame within 5.0s: ['.select2-container--open .select2-search__field', 'input.select2-search__field'] (last error: None) - skipping this period
+2026-09-11 11:34:07 INFO     __main__: === Period: Jul2026 ===
+2026-09-11 11:34:07 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-09-11 11:34:07 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-09-11 11:34:07 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-09-11 11:34:07 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: Reproductive Health
+2026-09-11 11:34:14 INFO     lmis_pipeline.scraper_base: Screenshot saved: 20260911_113413_select2_search_input_not_found_Program_Name.png
+2026-09-11 11:34:14 INFO     lmis_pipeline.scraper_base: Saved frame 0 HTML (url=https://lmis.health.gov.mw/#!/reports/list/malawi/93d09638-4dc7-4c94-a9f2-e80b5c62408e/options) to run_data_malawi\screenshots\20260911_113414_select2_search_input_not_found_Program_Name_frame0.html
+2026-09-11 11:34:14 INFO     lmis_pipeline.scraper_base: Frames present on page (1 total): ['https://lmis.health.gov.mw/#!/reports/list/malawi/93d09638-4dc7-4c94-a9f2-e80b5c62408e/options']
+2026-09-11 11:34:14 ERROR    __main__: Generating the report for period Jul2026 failed: Could not find the search box for 'Program Name' after opening it: None of the selectors matched in any frame within 5.0s: ['.select2-container--open .select2-search__field', 'input.select2-search__field'] (last error: None) - skipping this period
+2026-09-11 11:34:14 INFO     __main__: === Period: Aug2026 ===
+2026-09-11 11:34:14 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-09-11 11:34:14 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-09-11 11:34:14 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-09-11 11:34:14 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: Reproductive Health
+2026-09-11 11:34:20 INFO     lmis_pipeline.scraper_base: Screenshot saved: 20260911_113420_select2_search_input_not_found_Program_Name.png
+2026-09-11 11:34:20 INFO     lmis_pipeline.scraper_base: Saved frame 0 HTML (url=https://lmis.health.gov.mw/#!/reports/list/malawi/93d09638-4dc7-4c94-a9f2-e80b5c62408e/options) to run_data_malawi\screenshots\20260911_113420_select2_search_input_not_found_Program_Name_frame0.html
+2026-09-11 11:34:20 INFO     lmis_pipeline.scraper_base: Frames present on page (1 total): ['https://lmis.health.gov.mw/#!/reports/list/malawi/93d09638-4dc7-4c94-a9f2-e80b5c62408e/options']
+2026-09-11 11:34:20 ERROR    __main__: Generating the report for period Aug2026 failed: Could not find the search box for 'Program Name' after opening it: None of the selectors matched in any frame within 5.0s: ['.select2-container--open .select2-search__field', 'input.select2-search__field'] (last error: None) - skipping this period
+2026-09-11 11:34:20 INFO     __main__: === Period: Sep2026 ===
+2026-09-11 11:34:20 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-09-11 11:34:20 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-09-11 11:34:20 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-09-11 11:34:20 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: Reproductive Health
+2026-09-11 11:34:26 INFO     lmis_pipeline.scraper_base: Screenshot saved: 20260911_113426_select2_search_input_not_found_Program_Name.png
+2026-09-11 11:34:27 INFO     lmis_pipeline.scraper_base: Saved frame 0 HTML (url=https://lmis.health.gov.mw/#!/reports/list/malawi/93d09638-4dc7-4c94-a9f2-e80b5c62408e/options) to run_data_malawi\screenshots\20260911_113426_select2_search_input_not_found_Program_Name_frame0.html
+2026-09-11 11:34:27 INFO     lmis_pipeline.scraper_base: Frames present on page (1 total): ['https://lmis.health.gov.mw/#!/reports/list/malawi/93d09638-4dc7-4c94-a9f2-e80b5c62408e/options']
+2026-09-11 11:34:27 ERROR    __main__: Generating the report for period Sep2026 failed: Could not find the search box for 'Program Name' after opening it: None of the selectors matched in any frame within 5.0s: ['.select2-container--open .select2-search__field', 'input.select2-search__field'] (last error: None) - skipping this period
+2026-09-11 11:34:27 ERROR    __main__: Pipeline failed: No period succeeded - master workbook was never written. See the per-period errors above and the diagnostics dumps under run_data_malawi/screenshots/.

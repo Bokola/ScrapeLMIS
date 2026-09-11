@@ -1,0 +1,204 @@
+# ----------------------------------------------------------------------------
+# Malawi LMIS automation config. Deliberately a SEPARATE file from config.yaml
+# (Mozambique/SIMAM) - the two sites are different platforms with different
+# navigation and report mechanics, and keeping them apart means a Malawi fix
+# can never accidentally break the already-working Mozambique pipeline.
+#
+# Far less of this is confirmed than config.yaml at this point. "CONFIRMED"
+# below means you gave me that exact markup directly; everything else is a
+# best-effort guess - see MALAWI.md for what to verify first, the same way
+# SKILL.md did for Mozambique.
+# ----------------------------------------------------------------------------
+
+headless: false          # keep false until the flow below is confirmed working
+root: "./run_data_malawi" # separate from Mozambique's ./run_data entirely
+
+browser:
+  stealth: true
+  locale: "en-GB"                                   # NOT CONFIRMED - guessed; Malawi's LMIS
+                                                      # UI language isn't confirmed either way
+  timezone: "Africa/Blantyre"                        # Malawi's real timezone
+  storage_state_path: "./run_data_malawi/storage_state.json"
+
+credentials:
+  # Distinct env var names from Mozambique's (LMIS_username / LMIS_pass) so
+  # both can coexist in the same .env file without colliding.
+  username_env: "LMIS_MW_username"
+  password_env: "LMIS_MW_pass"
+
+urls:
+  home: "https://lmis.health.gov.mw/#!/login"   # CONFIRMED (you provided this) - note this is
+                                                  # an explicit login URL, unlike SIMAM which
+                                                  # redirects an unauthenticated home visit
+
+timeouts:
+  navigation_ms: 60000
+  action_ms: 30000
+  short_ms: 5000
+  download_ms: 180000   # NOT CONFIRMED how long Malawi's report generation actually takes -
+                          # copied Mozambique's (eventually-)confirmed value as a starting point
+
+retry:
+  max_attempts: 3
+  backoff_seconds: 5
+  login:
+    max_attempts: 4
+    base_wait_seconds: 300
+    backoff_multiplier: 1.5
+    max_wait_seconds: 1800
+    jitter_max_seconds: 45
+
+output:
+  dir: "./run_data_malawi/extracts"
+  sheet_name: "Sheet1"                       # CONFIRMED via a real sample export
+  master_filename: "lmis_mw_master.xlsx"
+  download_dir: "./run_data_malawi/downloads"
+  log_dir: "./run_data_malawi/logs"
+
+landing:
+  dir: "./run_data_malawi/landing"
+  file_prefix: "lmis_mw_raw"
+
+validation:
+  # false for now, deliberately: there is no confirmed column schema for
+  # Malawi's "LMIS Summary by facility" report yet (no sample export to
+  # build one from, unlike Mozambique's LMIS_MZ_2026_04.xlsx). Flip to true
+  # once schema_validation.py has a real MALAWI_SCHEMA worth enforcing.
+  fail_on_error: false
+
+reconciliation:
+  tolerance_pct: 1.0
+  kpi_columns: []
+  group_by: null
+
+filters:
+  # CONFIRMED value (you specified this): the exact Program Name option to
+  # select on every run.
+  program_name: "Reproductive Health"
+
+  # How many months to pull, inclusive of the current month - e.g. 4 on
+  # 2026-09-10 means periods Jun2026, Jul2026, Aug2026, Sep2026. The report
+  # form takes exactly one period per generation, so main.py loops over
+  # this many periods, generating and downloading once per period.
+  period_months: 4
+
+  # CONFIRMED via a real diagnostics capture: each field's underlying
+  # (hidden) <select> id, taken directly from its own <label for="...">.
+  # The select2 widget's own rendered id is a genuinely broken, unrendered
+  # Angular interpolation on this site (literally "select2-{{parametername}}
+  # -container" in the live DOM, for every field) - these real <select>
+  # ids are used instead, via the standard select2 sibling-DOM pattern
+  # (see malawi_scraper.py's _select2_choose()).
+  program_field_id: "program"
+  period_field_id: "period"
+  # District is deliberately left blank/unselected per explicit
+  # instruction - its real id ("district") is noted here for reference
+  # only, not currently used by any code path.
+  district_field_id: "district"
+
+# Selectors - ordered list, first match wins, same convention as config.yaml.
+selectors:
+  login:
+    # NOT CONFIRMED for this specific site - guessed to match Mozambique's
+    # SIMAM confirmed ids, on the reasoning that both are OpenLMIS
+    # deployments (same open-source reference UI). Plausible, not verified.
+    username_input:
+      - "#login-username"
+      - "input[name='vm.username']"
+    password_input:
+      - "#login-password"
+      - "input[name='vm.password']"
+    submit_button:
+      - "#login-button"
+      - "input[type='submit']"
+      - "button[type='submit']"
+    login_error_banner:
+      - "text=/invalid credentials/i"
+      - ".alert-danger"
+      - ".has-error"
+    # CONFIRMED markup (you provided this): the "your password is weak"
+    # warning modal's Close button, shown after logging in with a simple/
+    # default password.
+    weak_password_modal_close_button:
+      - "button[ng-click='vm.close()']"
+      - "button:has-text('Close')"
+
+  nav:
+    # CONFIRMED markup (you provided this): the top-nav Reports dropdown.
+    reports_dropdown:
+      - "a[bs-dropdown]:has-text('Reports')"
+      - "a:has-text('Reports')"
+    # CONFIRMED markup (you provided this): the "View Reports" link inside
+    # the opened dropdown.
+    view_reports_link:
+      - "a[href='#!/reports/list']"
+      - "a:has-text('View Reports')"
+    # CONFIRMED markup (you provided this): the "LMIS Summary by facility"
+    # report link. Matched primarily on the report's own id fragment in
+    # the href (stable, since it's the report's own identifier), with the
+    # visible text as a fallback.
+    lmis_summary_report_link:
+      - "a[href*='93d09638-4dc7-4c94-a9f2-e80b5c62408e']"
+      - "a:has-text('LMIS Summary by facility')"
+    # NOT CONFIRMED: reuses the Reports dropdown as a "logged in" signal,
+    # same pattern originally tried (and later fixed) for Mozambique - if
+    # this produces the same false-negative timing issue SIMAM had, swap
+    # it for something proven to render immediately on login (e.g. a
+    # logout link/button, if Malawi's LMIS has one).
+    logged_in_indicator:
+      - "a[bs-dropdown]:has-text('Reports')"
+
+  report:
+    # CONFIRMED markup (you provided this): the xlsx format radio button.
+    format_radio_xlsx:
+      - "input[type='radio'][value='xlsx']"
+    # CONFIRMED markup (you provided this): the Generate submit button.
+    generate_button:
+      - "input[type='submit'][value='Generate']"
+
+  common:
+    modal_dismiss_button:
+      - "button:has-text('OK')"
+      - "button:has-text('Close')"
+      - "[aria-label='Close']"
+      - ".modal.in button.close"
+    loading_overlay:
+      - ".loading-modal"
+      - ".modal-dialog.loading-modal"
+
+# CONFIRMED via a real sample export (malawi_extract.xlsx). The download is
+# a print-formatted report, not a plain data table - real column headers
+# sit on their own row (after a title block and a District/Reporting
+# Period/Program/Report Run Date metadata row), with several blank
+# "spacer" columns from merged-cell formatting. See malawi_main.py's
+# _read_malawi_report() for how this is parsed into a clean table. "Period"
+# is NOT one of the report's own columns - it's stamped onto every row
+# afterward from the period value already known in main.py's own loop
+# (the report's "Reporting Period:" metadata value isn't itself a per-row
+# field at all).
+excel_columns:
+  - "Line #"
+  - "Order Type"
+  - "District"
+  - "Facility Code"
+  - "Facility Name"
+  - "Facility Type"
+  - "Facility Operator"
+  - "Product Code"
+  - "Product"
+  - "Unit of Issue"
+  - "Quantity Received"
+  - "Quantity Issued"
+  - "AMC"
+  - "Closing balance (SOH)"
+  - "Requested Quantity"
+  - "Total stockout days"
+  - "Total losses and adjustments"
+  - "Period"
+
+# One row per facility + product + period, mirroring Mozambique's
+# facility + product + period pattern exactly.
+dedup_key:
+  - "Facility Code"
+  - "Product Code"
+  - "Period"
