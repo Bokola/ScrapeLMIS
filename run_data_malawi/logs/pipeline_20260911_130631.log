@@ -1,0 +1,69 @@
+2026-09-11 13:06:31 INFO     __main__: Logging this run to run_data_malawi\logs\pipeline_20260911_130631.log
+2026-09-11 13:06:31 INFO     __main__: Will generate the report for 4 period(s): ['Jun2026', 'Jul2026', 'Aug2026', 'Sep2026']
+2026-09-11 13:06:44 INFO     lmis_pipeline.scraper_base: Found saved session state at run_data_malawi\storage_state.json
+2026-09-11 13:06:45 INFO     lmis_pipeline.scraper_base: Applied playwright-stealth evasions to browser context
+2026-09-11 13:06:45 INFO     lmis_pipeline.malawi_scraper: Verifying saved session is still valid
+2026-09-11 13:06:54 INFO     lmis_pipeline.malawi_scraper: Saved session is no longer valid - logging in fresh
+2026-09-11 13:06:54 INFO     lmis_pipeline.malawi_scraper: Navigating to Malawi LMIS
+2026-09-11 13:06:59 INFO     lmis_pipeline.malawi_scraper: Entering username
+2026-09-11 13:06:59 INFO     lmis_pipeline.malawi_scraper: Entering password
+2026-09-11 13:06:59 INFO     lmis_pipeline.malawi_scraper: Submitting login form
+2026-09-11 13:07:00 INFO     lmis_pipeline.malawi_scraper: Dismissing weak-password warning modal
+2026-09-11 13:07:12 INFO     lmis_pipeline.malawi_scraper: Login successful
+2026-09-11 13:07:12 INFO     lmis_pipeline.malawi_scraper: Saved session state to run_data_malawi\storage_state.json
+2026-09-11 13:07:12 INFO     __main__: === Period: Jun2026 ===
+2026-09-11 13:07:12 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-09-11 13:07:12 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-09-11 13:07:12 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-09-11 13:07:14 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: Reproductive Health
+2026-09-11 13:07:16 INFO     lmis_pipeline.malawi_scraper: Selecting Period Name: Jun2026
+2026-09-11 13:07:17 INFO     lmis_pipeline.malawi_scraper: Selecting xlsx format
+2026-09-11 13:07:17 INFO     lmis_pipeline.malawi_scraper: Clicking Generate and waiting for the file
+2026-09-11 13:08:12 INFO     lmis_pipeline.malawi_scraper: Saved downloaded results to run_data_malawi\downloads\20260911T130811_lmis_summary_by_facility_reproductive_health_jun2026.xlsx
+2026-09-11 13:08:12 INFO     lmis_pipeline.landing: Staged raw download to run_data_malawi\landing\lmis_mz_raw_20260911T130812.xlsx
+2026-09-11 13:08:12 INFO     __main__: Staged raw download for Jun2026 to run_data_malawi\landing\lmis_mz_raw_20260911T130812.xlsx
+2026-09-11 13:08:16 INFO     lmis_pipeline.extract: Read 6218 rows, 28 columns from run_data_malawi\downloads\20260911T130811_lmis_summary_by_facility_reproductive_health_jun2026.xlsx
+2026-09-11 13:08:16 INFO     lmis_pipeline.extract: No existing master workbook at run_data_malawi\extracts\lmis_mw_master.xlsx - creating it fresh
+2026-09-11 13:08:20 INFO     __main__: Upserted period Jun2026 into master workbook at run_data_malawi\extracts\lmis_mw_master.xlsx
+2026-09-11 13:08:20 INFO     __main__: === Period: Jul2026 ===
+2026-09-11 13:08:20 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-09-11 13:08:20 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-09-11 13:08:20 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-09-11 13:08:20 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: Reproductive Health
+2026-09-11 13:08:23 INFO     lmis_pipeline.malawi_scraper: Selecting Period Name: Jul2026
+2026-09-11 13:08:23 INFO     lmis_pipeline.malawi_scraper: Selecting xlsx format
+2026-09-11 13:08:23 INFO     lmis_pipeline.malawi_scraper: Clicking Generate and waiting for the file
+2026-09-11 13:08:35 INFO     lmis_pipeline.malawi_scraper: Saved downloaded results to run_data_malawi\downloads\20260911T130835_lmis_summary_by_facility_reproductive_health_jul2026.xlsx
+2026-09-11 13:08:35 INFO     lmis_pipeline.landing: Staged raw download to run_data_malawi\landing\lmis_mz_raw_20260911T130835.xlsx
+2026-09-11 13:08:35 INFO     __main__: Staged raw download for Jul2026 to run_data_malawi\landing\lmis_mz_raw_20260911T130835.xlsx
+2026-09-11 13:08:39 INFO     lmis_pipeline.extract: Read 6783 rows, 28 columns from run_data_malawi\downloads\20260911T130835_lmis_summary_by_facility_reproductive_health_jul2026.xlsx
+2026-09-11 13:08:41 WARNING  lmis_pipeline.extract: dedup_key [] not fully present in both existing and new data - appending without dedup instead of upserting
+2026-09-11 13:08:49 INFO     __main__: Upserted period Jul2026 into master workbook at run_data_malawi\extracts\lmis_mw_master.xlsx
+2026-09-11 13:08:49 INFO     __main__: === Period: Aug2026 ===
+2026-09-11 13:08:49 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-09-11 13:08:49 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-09-11 13:08:49 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-09-11 13:08:49 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: Reproductive Health
+2026-09-11 13:08:51 INFO     lmis_pipeline.malawi_scraper: Selecting Period Name: Aug2026
+2026-09-11 13:08:52 INFO     lmis_pipeline.malawi_scraper: Selecting xlsx format
+2026-09-11 13:08:52 INFO     lmis_pipeline.malawi_scraper: Clicking Generate and waiting for the file
+2026-09-11 13:09:03 INFO     lmis_pipeline.malawi_scraper: Saved downloaded results to run_data_malawi\downloads\20260911T130903_lmis_summary_by_facility_reproductive_health_aug2026.xlsx
+2026-09-11 13:09:03 INFO     lmis_pipeline.landing: Staged raw download to run_data_malawi\landing\lmis_mz_raw_20260911T130903.xlsx
+2026-09-11 13:09:03 INFO     __main__: Staged raw download for Aug2026 to run_data_malawi\landing\lmis_mz_raw_20260911T130903.xlsx
+2026-09-11 13:09:08 INFO     lmis_pipeline.extract: Read 6645 rows, 28 columns from run_data_malawi\downloads\20260911T130903_lmis_summary_by_facility_reproductive_health_aug2026.xlsx
+2026-09-11 13:09:12 WARNING  lmis_pipeline.extract: dedup_key [] not fully present in both existing and new data - appending without dedup instead of upserting
+2026-09-11 13:09:24 INFO     __main__: Upserted period Aug2026 into master workbook at run_data_malawi\extracts\lmis_mw_master.xlsx
+2026-09-11 13:09:24 INFO     __main__: === Period: Sep2026 ===
+2026-09-11 13:09:24 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-09-11 13:09:24 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-09-11 13:09:24 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-09-11 13:09:24 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: Reproductive Health
+2026-09-11 13:09:26 INFO     lmis_pipeline.malawi_scraper: Selecting Period Name: Sep2026
+2026-09-11 13:09:27 INFO     lmis_pipeline.malawi_scraper: Selecting xlsx format
+2026-09-11 13:09:27 INFO     lmis_pipeline.malawi_scraper: Clicking Generate and waiting for the file
+2026-09-11 13:09:30 INFO     lmis_pipeline.malawi_scraper: Saved downloaded results to run_data_malawi\downloads\20260911T130930_lmis_summary_by_facility_reproductive_health_sep2026.xlsx
+2026-09-11 13:09:30 INFO     lmis_pipeline.landing: Staged raw download to run_data_malawi\landing\lmis_mz_raw_20260911T130930.xlsx
+2026-09-11 13:09:30 INFO     __main__: Staged raw download for Sep2026 to run_data_malawi\landing\lmis_mz_raw_20260911T130930.xlsx
+2026-09-11 13:09:30 INFO     lmis_pipeline.extract: Read 8 rows, 28 columns from run_data_malawi\downloads\20260911T130930_lmis_summary_by_facility_reproductive_health_sep2026.xlsx
+2026-09-11 13:09:37 WARNING  lmis_pipeline.extract: dedup_key [] not fully present in both existing and new data - appending without dedup instead of upserting
+2026-09-11 13:09:49 INFO     __main__: Upserted period Sep2026 into master workbook at run_data_malawi\extracts\lmis_mw_master.xlsx

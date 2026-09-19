@@ -93,6 +93,11 @@ landing:
   dir: "./run_data/landing"        # raw downloaded file staged here, untouched, before any
                                     # validation/reshaping - same "never lose the raw capture"
                                     # convention as the original pipeline
+  file_prefix: "lmis_mz_raw"       # preserves the exact filenames already used so far - a
+                                    # previous version hardcoded this same value directly in
+                                    # landing.py regardless of country, which also silently
+                                    # mislabeled Malawi's files; now each country's config sets
+                                    # its own
 
 validation:
   fail_on_error: true              # true: halt before writing the master .xlsx on a failed check

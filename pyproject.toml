@@ -1,7 +1,7 @@
 [project]
-name = "lmis-mz-pipeline"
+name = "lmis-pipeline"
 version = "0.1.0"
-description = "SIMAM (LMIS Mozambique) Requisition Data Report scrape -> stage -> validate -> upsert -> Excel pipeline"
+description = "SIMAM (Mozambique) + Malawi LMIS report scrape -> stage -> validate -> upsert -> Excel pipeline"
 requires-python = ">=3.11"
 dependencies = [
     "playwright==1.56.0",
@@ -15,14 +15,15 @@ dependencies = [
 ]
 
 [project.scripts]
-lmis-mz-pipeline = "lmis_mz_pipeline.main:main"
+lmis-mz-pipeline = "lmis_pipeline.main:main"
+lmis-mw-pipeline = "lmis_pipeline.malawi_main:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/lmis_mz_pipeline"]
+packages = ["src/lmis_pipeline"]
 
 [dependency-groups]
 dev = [

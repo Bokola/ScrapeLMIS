@@ -24,13 +24,20 @@ def stage_raw_download(downloaded_path: str | Path, cfg: Config, run_id: str | N
     """Copy the raw downloaded file (as saved by
     scraper.download_results_xlsx) into the landing zone untouched. Returns
     the landing-zone path.
+
+    Filename prefix comes from config's landing.file_prefix (default
+    "lmis_raw" if unset) - each country's config sets its own, so
+    Mozambique's and Malawi's staged files are never confused with each
+    other (a previous version hardcoded "lmis_mz_raw" here regardless of
+    which country's config was actually in use).
     """
     downloaded_path = Path(downloaded_path)
     landing_dir = Path(cfg.get("landing.dir", "./run_data/landing"))
     landing_dir.mkdir(parents=True, exist_ok=True)
 
     run_id = run_id or datetime.now().strftime("%Y%m%dT%H%M%S")
-    dest = landing_dir / f"lmis_mz_raw_{run_id}{downloaded_path.suffix}"
+    prefix = cfg.get("landing.file_prefix", "lmis_raw")
+    dest = landing_dir / f"{prefix}_{run_id}{downloaded_path.suffix}"
     shutil.copy2(downloaded_path, dest)
 
     log.info("Staged raw download to %s", dest)

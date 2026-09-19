@@ -51,7 +51,7 @@ class Config:
         startup rather than partway through a run.
 
         Loads a .env file BEFORE reading os.environ, so credentials work
-        with plain `python -m lmis_mz_pipeline.main` / `uv run python -m ...`
+        with plain `python -m lmis_pipeline.main` / `uv run python -m ...`
         without needing to remember `uv run --env-file .env ...`. Real
         already-exported shell/CI env vars always win (override=False) -
         .env only fills in what isn't already set. env_file lets you point

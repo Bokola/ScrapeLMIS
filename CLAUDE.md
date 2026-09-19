@@ -1,10 +1,10 @@
 # CLAUDE.md
 
-## Project Guidelines for lmis_mz_pipeline
+## Project Guidelines for lmis_pipeline
 
 ### Environment & Run Commands
 * **Package Manager**: Use `uv` for environment management and execution.
-* **Main Pipeline Execution**: `uv run python -m lmis_mz_pipeline.main`
+* **Main Pipeline Execution**: `uv run python -m lmis_pipeline.main`
 * **Required Environment Variables**:
   * `LMIS_username` (resolved via `credentials.username_env` in config)
   * `LMIS_pass` (resolved via `credentials.password_env` in config)
