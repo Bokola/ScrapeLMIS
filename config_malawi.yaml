@@ -51,13 +51,13 @@ retry:
 output:
   dir: "./run_data_malawi/extracts"
   sheet_name: "Sheet1"                       # CONFIRMED via a real sample export
-  master_filename: "lmis_mw_master.xlsx"
+  master_basename: "LMIS_MW"       # writes BOTH LMIS_MW.xlsx and LMIS_MW.csv together, always
+                                    # kept in sync - see extract.py's upsert_to_excel_and_csv()
   download_dir: "./run_data_malawi/downloads"
   log_dir: "./run_data_malawi/logs"
 
 landing:
   dir: "./run_data_malawi/landing"
-  file_prefix: "lmis_mw_raw"
 
 validation:
   # false for now, deliberately: there is no confirmed column schema for
@@ -81,6 +81,20 @@ filters:
   # form takes exactly one period per generation, so main.py loops over
   # this many periods, generating and downloading once per period.
   period_months: 4
+
+  # NOT CONFIRMED to exist as a site-side filter: unlike Mozambique's
+  # "Nome do produto" widget, Malawi's "LMIS Summary by facility" report
+  # form has no per-product filter field at all (only Program Name, Period
+  # Name, District) - confirmed via a real sample export that the report
+  # returns every product the selected facilities reported under the
+  # chosen program, not a curated subset. If you want the master workbook
+  # restricted to specific products the way Mozambique's is, list their
+  # EXACT names here (matching the "Product" column's text precisely,
+  # including odd spacing/punctuation - confirmed real values include
+  # things like "Jadelle( Levonorgestrel  75mg/rod)" with a double space)
+  # and run() will filter the parsed report to only those rows. Leave
+  # empty to keep every product the report itself returns, same as now.
+  products: []
 
   # CONFIRMED via a real diagnostics capture: each field's underlying
   # (hidden) <select> id, taken directly from its own <label for="...">.
@@ -177,7 +191,7 @@ selectors:
 # (the report's "Reporting Period:" metadata value isn't itself a per-row
 # field at all).
 excel_columns:
-  - "Line #"
+  - "Period"
   - "Order Type"
   - "District"
   - "Facility Code"
@@ -194,7 +208,6 @@ excel_columns:
   - "Requested Quantity"
   - "Total stockout days"
   - "Total losses and adjustments"
-  - "Period"
 
 # One row per facility + product + period, mirroring Mozambique's
 # facility + product + period pattern exactly.

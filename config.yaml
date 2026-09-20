@@ -85,7 +85,8 @@ ui:
 output:
   dir: "./run_data/extracts"             # local folder the processed .xlsx lands in
   sheet_name: "Query result"             # matches the sample file's sheet name
-  master_filename: "lmis_mz_master.xlsx" # persistent workbook, upserted via dedup_key
+  master_basename: "LMIS_MZ"       # writes BOTH LMIS_MZ.xlsx and LMIS_MZ.csv together, always
+                                    # kept in sync - see extract.py's upsert_to_excel_and_csv()
   download_dir: "./run_data/downloads"   # where the browser's raw "Download results" file lands
   log_dir: "./run_data/logs"             # one timestamped pipeline_YYYYMMDD_HHMMSS.log per run
 
@@ -365,34 +366,45 @@ selectors:
       - "button[aria-label='Apply']"
       - "button:text-is('Apply')"
 
-# Column order for the processed master workbook - matches the sample
-# LMIS_MZ_2026_04.xlsx export exactly. Anything extracted but not listed
-# here is appended at the end rather than dropped.
+# Column order for the processed master workbook - matches the translated,
+# enriched target format confirmed via a real sample (LMIS_MZ.csv), which
+# already contained both the original Portuguese columns/values and the
+# target English ones side by side. Applied to the RAW download in
+# main.py's translate_and_enrich() before this reordering happens - so
+# this list uses the ENGLISH names, not the raw report's Portuguese ones.
+# Anything extracted but not listed here is appended at the end rather
+# than dropped.
 excel_columns:
-  - "Província"
-  - "Distrito"
-  - "Tipo de instalação"
-  - "Código da instalação"
-  - "Nome da instalação"
-  - "Nome do relatório"
-  - "Período de análise"
-  - "Programa"
-  - "Código do produto"
-  - "Nome do produto"
-  - "Saldo inicial"
-  - "Entradas"
-  - "Saídas"
-  - "Ajustes"
-  - "Empréstimos"
-  - "Stock teórico"
-  - "Inventário"
-  - "Valor total"
-  - "Período"
+  - "Province"
+  - "District"
+  - "Installation type"
+  - "Installation code"
+  - "Installation Name"
+  - "Report Name"
+  - "Analysis period"
+  - "Program"
+  - "Product Code"
+  - "Product Name"
+  - "Opening balance"
+  - "Entries"
+  - "Outputs"
+  - "Settings"
+  - "Loans"
+  - "Theoretical stock"
+  - "Inventory"
+  - "Total value"
+  - "Period"
+  - "Health Category"
+  - "Product Short"
+  - "Date"
+  - "Category"
 
 # Dedup key: rows in the master workbook matching this composite key get
 # updated in place on re-run rather than duplicated. One row per
-# facility + product + reporting period.
+# facility + product + reporting period. Uses the derived "Period" (a
+# clean single-month value), not "Analysis period" (the raw date-range
+# string), as the period component - see translate_and_enrich().
 dedup_key:
-  - "Código da instalação"
-  - "Código do produto"
-  - "Período de análise"
+  - "Installation code"
+  - "Product Code"
+  - "Period"
