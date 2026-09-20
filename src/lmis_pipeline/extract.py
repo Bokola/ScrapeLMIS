@@ -68,6 +68,142 @@ def _write_formatted_excel(df: pd.DataFrame, path: Path, sheet_name: str) -> Non
             worksheet.column_dimensions[col_letter].width = min(max_len + 2, 60)
 
 
+def upsert_to_excel_and_csv(df_new: pd.DataFrame, cfg: Config) -> tuple[Path, Path]:
+    """Write df_new into persistent master files in BOTH .xlsx and .csv
+    formats, updating existing rows in place (matched on config's
+    dedup_key) rather than duplicating them.
+
+    Both files are always kept in sync: the merged result is computed
+    once, then written to both formats, rather than upserting each format
+    independently - independent upserts could let the two files silently
+    drift apart over time (e.g. if one write step failed but not the
+    other, or if they were run at different times against different
+    versions of the code).
+
+    File names come from config's output.master_basename (e.g. "LMIS_MZ",
+    "LMIS_MW") with .xlsx/.csv appended, per explicit request - not
+    output.master_filename, which named a single file with its own
+    extension.
+
+    The existing merged state is read from whichever of the two files
+    exists (preferring .xlsx if both do, since read_excel's dtype
+    handling is a bit more precise than a round-tripped CSV) - if only one
+    exists (e.g. a master file from before this dual-format convention),
+    that one is used and both are (re)written from here on.
+    """
+    out_dir = Path(cfg.get("output.dir", "./run_data/extracts"))
+    out_dir.mkdir(parents=True, exist_ok=True)
+    base_name = cfg.get("output.master_basename", "LMIS")
+    sheet_name = cfg.get("output.sheet_name", "Sheet1")
+    excel_columns = cfg.get("excel_columns", [])
+    dedup_key = cfg.get("dedup_key", [])
+
+    xlsx_path = out_dir / f"{base_name}.xlsx"
+    csv_path = out_dir / f"{base_name}.csv"
+
+    df_new = _reorder_columns(df_new, excel_columns)
+
+    existing = None
+    if xlsx_path.exists():
+        existing = pd.read_excel(xlsx_path, sheet_name=sheet_name)
+    elif csv_path.exists():
+        existing = pd.read_csv(csv_path, dtype=str)
+
+    if existing is not None:
+        existing = _reorder_columns(existing, excel_columns)
+        key_cols_present = (
+            dedup_key
+            and all(k in existing.columns for k in dedup_key)
+            and all(k in df_new.columns for k in dedup_key)
+        )
+        if key_cols_present:
+            combined = pd.concat([existing, df_new], ignore_index=True)
+            before = len(combined)
+            # keep="last" -> the new extraction's values win on a key clash
+            combined = combined.drop_duplicates(subset=dedup_key, keep="last")
+            log.info(
+                "Upsert: %d existing + %d new rows -> %d after dedup on %s "
+                "(%d row(s) updated in place)",
+                len(existing), len(df_new), len(combined),
+                dedup_key, before - len(combined),
+            )
+        else:
+            log.warning(
+                "dedup_key %s not fully present in both existing and new "
+                "data - appending without dedup instead of upserting",
+                dedup_key,
+            )
+            combined = pd.concat([existing, df_new], ignore_index=True)
+    else:
+        combined = df_new
+        log.info("No existing master files at %s.{xlsx,csv} - creating them fresh", out_dir / base_name)
+
+    combined = _reorder_columns(combined, excel_columns)
+    _write_formatted_excel(combined, xlsx_path, sheet_name)
+    combined.to_csv(csv_path, index=False)
+    log.info("Wrote %d total row(s) to %s and %s", len(combined), xlsx_path, csv_path)
+    return xlsx_path, csv_path
+
+
+def upsert_to_csv(df_new: pd.DataFrame, cfg: Config) -> Path:
+    """Write df_new into a persistent master CSV, updating existing rows in
+    place rather than duplicating them - matched on config's dedup_key.
+    Mirrors upsert_to_excel()'s dedup logic exactly, but for a plain CSV
+    master file instead of a formatted .xlsx workbook (no bold header,
+    frozen panes, or column widths - CSV has no such concept).
+
+    Existing rows are read back with dtype=str (not pandas' inferred
+    types) so repeated upsert cycles don't introduce inconsistencies like
+    "1.0" appearing after a column picks up a stray NaN and gets upcast to
+    float - matches this project's general "treat scraped/downloaded
+    values as text" convention elsewhere (e.g. landing.py's parquet
+    staging).
+    """
+    out_dir = Path(cfg.get("output.dir", "./run_data/extracts"))
+    out_dir.mkdir(parents=True, exist_ok=True)
+    master_path = out_dir / cfg.get("output.master_filename", "master.csv")
+    excel_columns = cfg.get("excel_columns", [])
+    dedup_key = cfg.get("dedup_key", [])
+
+    df_new = _reorder_columns(df_new, excel_columns)
+
+    if master_path.exists():
+        existing = pd.read_csv(master_path, dtype=str)
+        existing = _reorder_columns(existing, excel_columns)
+
+        key_cols_present = (
+            dedup_key
+            and all(k in existing.columns for k in dedup_key)
+            and all(k in df_new.columns for k in dedup_key)
+        )
+        if key_cols_present:
+            combined = pd.concat([existing, df_new.astype(str)], ignore_index=True)
+            before = len(combined)
+            # keep="last" -> the new extraction's values win on a key clash
+            combined = combined.drop_duplicates(subset=dedup_key, keep="last")
+            log.info(
+                "Upsert: %d existing + %d new rows -> %d after dedup on %s "
+                "(%d row(s) updated in place)",
+                len(existing), len(df_new), len(combined),
+                dedup_key, before - len(combined),
+            )
+        else:
+            log.warning(
+                "dedup_key %s not fully present in both existing and new "
+                "data - appending without dedup instead of upserting",
+                dedup_key,
+            )
+            combined = pd.concat([existing, df_new.astype(str)], ignore_index=True)
+    else:
+        combined = df_new.astype(str)
+        log.info("No existing master CSV at %s - creating it fresh", master_path)
+
+    combined = _reorder_columns(combined, excel_columns)
+    combined.to_csv(master_path, index=False)
+    log.info("Wrote %d total row(s) to master CSV %s", len(combined), master_path)
+    return master_path
+
+
 def upsert_to_excel(df_new: pd.DataFrame, cfg: Config) -> Path:
     """Write df_new into the persistent master workbook, updating existing
     rows in place rather than duplicating them - matched on config's
