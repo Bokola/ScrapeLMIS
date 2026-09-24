@@ -9,6 +9,7 @@ Run with: uv run python -m lmis_pipeline.main [--baseline path/to/manual_downloa
 from __future__ import annotations
 
 import argparse
+import calendar
 import re
 import sys
 from pathlib import Path
@@ -19,16 +20,21 @@ from .config import Config, ConfigError
 from .extract import read_downloaded_file, upsert_to_excel_and_csv
 from .landing import stage_raw_download
 from .logger import enable_file_logging, get_logger
+from .periods import month_window
 from .schema_validation import LMIS_REQUISITION_SCHEMA, validate_extract
 from .scraper import ScraperError, open_browser
 
 log = get_logger(__name__)
 
-# CONFIRMED, all of it, by testing directly against a real translated
-# sample file (LMIS_MZ.csv) that already contained both the original
-# Portuguese columns/values and the target English ones side by side -
-# every mapping and derivation below reproduced the real file's own
-# columns with a 100% match across all 1000 sample rows.
+# Column translations, Health Category, Product Short, and Category were
+# all CONFIRMED by testing directly against a real translated sample file
+# (LMIS_MZ.csv) that already contained both the original Portuguese
+# columns/values and the target English ones side by side - every mapping
+# reproduced the real file's own columns with a 100% match across all
+# 1000 sample rows. "Period"'s format was ALSO confirmed that way
+# originally, then deliberately changed afterward per explicit request
+# (date only, matching Malawi's "01/mm/yyyy", not the datetime format the
+# sample file actually used) - see the comment at that line.
 
 # Straight 1:1 header translations. Deliberately excludes "Período" - that
 # column is replaced entirely by a freshly-derived "Period" (see below),
@@ -54,6 +60,18 @@ COLUMN_TRANSLATIONS = {
     "Inventário": "Inventory",
     "Valor total": "Total value",
 }
+
+# Second header row for the master files, per explicit request, confirmed
+# against a real sample file (sample-LMIS_MZ.csv) - the exact reverse of
+# COLUMN_TRANSLATIONS, plus "Period" (which maps to "Período" even though
+# it's a derived column, not a straight rename of the original "Período" -
+# the sample file uses that label for it anyway) and the four derived
+# columns mapped to themselves (no Portuguese equivalent exists for them
+# in the original report).
+SECOND_HEADER_ROW = {en: pt for pt, en in COLUMN_TRANSLATIONS.items()}
+SECOND_HEADER_ROW["Period"] = "Período"
+for _derived_col in ("Health Category", "Product Short", "Date", "Category"):
+    SECOND_HEADER_ROW[_derived_col] = _derived_col
 
 # Health Category, derived from Tipo de instalação: everything is a
 # "Health Facility" except a warehouse ("DDM").
@@ -101,6 +119,38 @@ def _parse_period_end_month(analysis_period: str) -> tuple[int, int] | None:
     return year, entry[0]
 
 
+def filter_to_period_window(
+    df: pd.DataFrame, n_months: int, offset_months: int
+) -> pd.DataFrame:
+    """Keep only rows whose "Período de análise" end-month falls within
+    the configured output window (see periods.month_window) - a
+    client-side trim, since SIMAM's own period widget only supports a
+    single trailing "Previous N months" span ending at the current month,
+    not an arbitrary offset/lag. The site is asked for a wide-enough span
+    (config's filters.period_months, unchanged) and this narrows the
+    downloaded data down to exactly what's wanted afterward - the same
+    approach used for Malawi's product filtering, where the site also
+    couldn't do the filtering itself.
+
+    A no-op (returns df unchanged) when offset_months is 0, since a
+    zero-offset window ending at the current month is exactly what the
+    site's own "Previous N months" filter already returns - filtering
+    again would be redundant, not incorrect, but skipped for clarity.
+    """
+    if offset_months == 0:
+        return df
+    allowed = set(month_window(n_months, offset_months))
+    parsed = df["Período de análise"].map(_parse_period_end_month)
+    before = len(df)
+    filtered = df[parsed.map(lambda ym: ym in allowed)].reset_index(drop=True)
+    log.info(
+        "Filtered to output period window (%d month(s), offset %d): "
+        "%d row(s) -> %d row(s) kept",
+        n_months, offset_months, before, len(filtered),
+    )
+    return filtered
+
+
 def translate_and_enrich(df: pd.DataFrame) -> pd.DataFrame:
     """Translate the raw report's Portuguese column headers to English and
     add four derived columns (Health Category, Product Short, Category,
@@ -122,7 +172,20 @@ def translate_and_enrich(df: pd.DataFrame) -> pd.DataFrame:
     df["Category"] = product_lookup.map(lambda t: t[1])
 
     parsed = df["Período de análise"].map(_parse_period_end_month)
-    df["Period"] = parsed.map(lambda ym: f"{ym[0]}-{ym[1]:02d}-01 00:00:00" if ym else "")
+    # Date, not datetime, per explicit request - matching Malawi's own
+    # "01/mm/yyyy" Period format (day always "01", since these are monthly
+    # periods with no real day component). This deliberately overrides the
+    # "2024-09-01 00:00:00" datetime format originally confirmed against a
+    # real sample file - that format was correct at the time, but the
+    # format itself has since changed on request.
+    # "Mon-YY" per explicit request (e.g. "Jan-24") - confirmed against a
+    # real sample file (sample-LMIS_MZ.csv). This supersedes the earlier
+    # "01/mm/yyyy" format, which itself had superseded the original
+    # datetime format - each was correct when it was requested; only the
+    # format itself keeps changing.
+    df["Period"] = parsed.map(
+        lambda ym: f"{calendar.month_abbr[ym[1]]}-{str(ym[0])[-2:]}" if ym else ""
+    )
     df["Date"] = parsed.map(lambda ym: f"{_PT_MONTH_NUM_TO_EN[ym[1]]}-{ym[0]}" if ym else "")
 
     if "Período" in df.columns:
@@ -171,8 +234,15 @@ def run(cfg: Config, baseline_path: Path | None = None) -> tuple[Path, Path]:
                 f"{landing_path} for diagnosis - re-run against it once fixed."
             )
 
+    df = filter_to_period_window(
+        df,
+        n_months=cfg.get("filters.output_period_count", 4),
+        offset_months=cfg.get("filters.output_period_offset", 0),
+    )
     df_translated = translate_and_enrich(df)
-    xlsx_path, csv_path = upsert_to_excel_and_csv(df_translated, cfg)
+    xlsx_path, csv_path = upsert_to_excel_and_csv(
+        df_translated, cfg, second_header=SECOND_HEADER_ROW
+    )
     log.info("Pipeline complete: master files at %s and %s", xlsx_path, csv_path)
 
     if baseline_path is not None:

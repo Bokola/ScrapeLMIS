@@ -5,7 +5,7 @@
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,
 LMIS Summary by facility,,,,,,,,,,,,,,,,,,,,,,,,,,,
 District:,,,,,,,Reporting Period:,,,,,,,,Program:,,,,,,,,,Report Run Date:,,,
-All,,,,,,,Jun2026,,,,,,,,Reproductive Health,,,,,,,,,20 - Sep - 26,,,
+All,,,,,,,Jun2026,,,,,,,,Reproductive Health,,,,,,,,,24 - Sep - 26,,,
 Line #,Order Type,,District,Facility Code,,Facility Name,,,Facility Type,Facility Operator,Product Code,Product,,Unit of Issue,,Quantity Received,Quantity Issued,AMC,,Closing balance (SOH),,,Requested Quantity,,Total stockout days,,Total losses and adjustments
 1,Normal,,Zomba,ZA2723,,Zomba Mental Hospital,,,Mental Hospital,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,0,1,,2,,,-,,0,,0
 2,Normal,,Zomba,ZA2723,,Zomba Mental Hospital,,,Mental Hospital,Government of Malawi,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,0,0,,20,,,-,,0,,5
@@ -933,18 +933,18 @@ Line #,Order Type,,District,Facility Code,,Facility Name,,,Facility Type,Facilit
 924,Normal,,Machinga,MHG2621,,Nthorowa Health Centre,,,CHAM,CHAM,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,200,300,,"1,600",,,-,,0,,0
 925,Normal,,Machinga,MHG2621,,Nthorowa Health Centre,,,CHAM,CHAM,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,132,66,,78,,,-,,0,,0
 926,Normal,,Lilongwe,LL1540,,Nthondo Health Centre,,,Health Centre,Government of Malawi,BB048900,"Magnesium Sulphate, 50%, Injection, Ampoule of 2ml, Subcutaneous",,Ampoule,,0,0,0,,20,,,-,,0,,0
-927,Normal,,Ntchisi,NS1211,,Nthondo Health Centre,,,Health Centre,Government of Malawi,FP002400,Copper containing IUCD (Copper T®),,Set,,0,0,0,,62,,,-,,0,,0
-928,Normal,,Lilongwe,LL1540,,Nthondo Health Centre,,,Health Centre,Government of Malawi,FP002400,Copper containing IUCD (Copper T®),,Set,,0,0,0,,25,,,-,,0,,0
+927,Normal,,Lilongwe,LL1540,,Nthondo Health Centre,,,Health Centre,Government of Malawi,FP002400,Copper containing IUCD (Copper T®),,Set,,0,0,0,,25,,,-,,0,,0
+928,Normal,,Ntchisi,NS1211,,Nthondo Health Centre,,,Health Centre,Government of Malawi,FP002400,Copper containing IUCD (Copper T®),,Set,,0,0,0,,62,,,-,,0,,0
 929,Normal,,Ntchisi,NS1211,,Nthondo Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,0,16,,0,,,-,,30,,0
 930,Normal,,Lilongwe,LL1540,,Nthondo Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,0,5,,5,,,-,,0,,0
 931,Normal,,Lilongwe,LL1540,,Nthondo Health Centre,,,Health Centre,Government of Malawi,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,0,4,,50,,,-,,0,,0
 932,Normal,,Ntchisi,NS1211,,Nthondo Health Centre,,,Health Centre,Government of Malawi,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,0,0,,70,,,-,,0,,0
 933,Normal,,Lilongwe,LL1540,,Nthondo Health Centre,,,Health Centre,Government of Malawi,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,60,44,,60,,,-,,0,,-20
 934,Normal,,Ntchisi,NS1211,,Nthondo Health Centre,,,Health Centre,Government of Malawi,FP004151,"Levoplant (Levonogetrel75mg/rod),2rod Implant,3  years Efficacy",,Vial,,0,0,0,,90,,,-,,0,,90
-935,Normal,,Lilongwe,LL1540,,Nthondo Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,"4,556","11,418",,0,,,-,,0,,0
-936,Normal,,Ntchisi,NS1211,,Nthondo Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,"15,552","10,368","5,184",,"5,184",,,-,,0,,0
-937,Normal,,Ntchisi,NS1211,,Nthondo Health Centre,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,310,305,,646,,,-,,0,,0
-938,Normal,,Lilongwe,LL1540,,Nthondo Health Centre,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,0,832,,0,,,-,,30,,0
+935,Normal,,Ntchisi,NS1211,,Nthondo Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,"15,552","10,368","5,184",,"5,184",,,-,,0,,0
+936,Normal,,Lilongwe,LL1540,,Nthondo Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,"4,556","11,418",,0,,,-,,0,,0
+937,Normal,,Lilongwe,LL1540,,Nthondo Health Centre,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,0,832,,0,,,-,,30,,0
+938,Normal,,Ntchisi,NS1211,,Nthondo Health Centre,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,310,305,,646,,,-,,0,,0
 939,Normal,,Ntchisi,NS1211,,Nthondo Health Centre,,,Health Centre,Government of Malawi,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,300,150,,"1,050",,,-,,0,,"1,350"
 940,Normal,,Lilongwe,LL1540,,Nthondo Health Centre,,,Health Centre,Government of Malawi,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,640,"2,100",,0,,,-,,20,,0
 941,Normal,,Ntchisi,NS1211,,Nthondo Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,0,63,,0,,,-,,30,,0
@@ -1541,19 +1541,19 @@ Line #,Order Type,,District,Facility Code,,Facility Name,,,Facility Type,Facilit
 1532,Normal,,Phalombe,PH221518,,Namasoko Dispensary,,,Dispensary,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,0,0,,294,,,-,,0,,0
 1533,Normal,,Zomba,ZA2714,,Namasalima Health Centre,,,Health Centre,Government of Malawi,BB021301,"Dexamethasone Injection 5mg/2ml,2ml",,Each,,0,8,4,,12,,,-,,0,,0
 1534,Normal,,Zomba,ZA2714,,Namasalima Health Centre,,,Health Centre,Government of Malawi,BB048900,"Magnesium Sulphate, 50%, Injection, Ampoule of 2ml, Subcutaneous",,Ampoule,,0,30,35,,90,,,-,,0,,0
-1535,Normal,,Mulanje,MJ3215,,Namasalima Health Centre,,,CHAM,CHAM,FP002400,Copper containing IUCD (Copper T®),,Set,,0,0,8,,0,,,-,,30,,0
-1536,Normal,,Zomba,ZA2714,,Namasalima Health Centre,,,Health Centre,Government of Malawi,FP002400,Copper containing IUCD (Copper T®),,Set,,0,0,0,,2,,,-,,0,,0
+1535,Normal,,Zomba,ZA2714,,Namasalima Health Centre,,,Health Centre,Government of Malawi,FP002400,Copper containing IUCD (Copper T®),,Set,,0,0,0,,2,,,-,,0,,0
+1536,Normal,,Mulanje,MJ3215,,Namasalima Health Centre,,,CHAM,CHAM,FP002400,Copper containing IUCD (Copper T®),,Set,,0,0,8,,0,,,-,,30,,0
 1537,Normal,,Mulanje,MJ3215,,Namasalima Health Centre,,,CHAM,CHAM,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,20,10,,62,,,-,,0,,0
 1538,Normal,,Mulanje,MJ3215,,Namasalima Health Centre,,,CHAM,CHAM,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,10,15,,0,,,-,,20,,0
 1539,Normal,,Zomba,ZA2714,,Namasalima Health Centre,,,Health Centre,Government of Malawi,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,0,0,,60,,,-,,0,,0
-1540,Normal,,Mulanje,MJ3215,,Namasalima Health Centre,,,CHAM,CHAM,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,10,30,,40,,,-,,0,,0
-1541,Normal,,Zomba,ZA2714,,Namasalima Health Centre,,,Health Centre,Government of Malawi,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,0,75,,0,,,-,,30,,0
+1540,Normal,,Zomba,ZA2714,,Namasalima Health Centre,,,Health Centre,Government of Malawi,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,0,75,,0,,,-,,30,,0
+1541,Normal,,Mulanje,MJ3215,,Namasalima Health Centre,,,CHAM,CHAM,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,10,30,,40,,,-,,0,,0
 1542,Normal,,Mulanje,MJ3215,,Namasalima Health Centre,,,CHAM,CHAM,FP004151,"Levoplant (Levonogetrel75mg/rod),2rod Implant,3  years Efficacy",,Vial,,0,0,0,,20,,,-,,0,,20
 1543,Normal,,Mulanje,MJ3215,,Namasalima Health Centre,,,CHAM,CHAM,FP003800,Male condoms,,Each,,0,"42,480","21,240",,"4,176",,,-,,0,,0
 1544,Normal,,Zomba,ZA2714,,Namasalima Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,"2,880","6,480",,"2,592",,,-,,0,,"5,184"
 1545,Normal,,Mulanje,MJ3215,,Namasalima Health Centre,,,CHAM,CHAM,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,"1,255","1,190",,"2,845",,,-,,0,,0
-1546,Normal,,Zomba,ZA2714,,Namasalima Health Centre,,,Health Centre,Government of Malawi,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,0,400,,200,,,-,,30,,0
-1547,Normal,,Mulanje,MJ3215,,Namasalima Health Centre,,,CHAM,CHAM,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,"2,200","1,975",,"6,800",,,-,,0,,0
+1546,Normal,,Mulanje,MJ3215,,Namasalima Health Centre,,,CHAM,CHAM,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,"2,200","1,975",,"6,800",,,-,,0,,0
+1547,Normal,,Zomba,ZA2714,,Namasalima Health Centre,,,Health Centre,Government of Malawi,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,0,400,,200,,,-,,30,,0
 1548,Normal,,Zomba,ZA2714,,Namasalima Health Centre,,,Health Centre,Government of Malawi,FP000600,Oral Contraceptive Tablets - Levonogestrel Only 0.3mg (Microlut),,Each,,0,0,0,,7,,,-,,0,,0
 1549,Normal,,Zomba,ZA2714,,Namasalima Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,0,42,,0,,,-,,30,,0
 1550,Normal,,Mulanje,MJ3215,,Namasalima Health Centre,,,CHAM,CHAM,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,"1,407","1,313",,"3,048",,,-,,0,,0
@@ -3000,14 +3000,14 @@ Line #,Order Type,,District,Facility Code,,Facility Name,,,Facility Type,Facilit
 2991,Normal,,Mangochi,MH200810,,Maleta,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,0,25,,0,,,-,,30,,0
 2992,Normal,,Mangochi,MH2515,,Malembo Health Centre,,,CHAM,CHAM,FP002400,Copper containing IUCD (Copper T®),,Set,,0,0,3,,5,,,-,,0,,0
 2993,Normal,,Mangochi,MH2515,,Malembo Health Centre,,,CHAM,CHAM,ST062500,Female Condoms,,Piece,,0,0,0,,10,,,-,,0,,0
-2994,Normal,,Lilongwe,LL1583,,Malembo Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,0,8,,0,,,-,,30,,0
-2995,Normal,,Mangochi,MH2515,,Malembo Health Centre,,,CHAM,CHAM,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,12,37,,1,,,-,,0,,0
+2994,Normal,,Mangochi,MH2515,,Malembo Health Centre,,,CHAM,CHAM,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,12,37,,1,,,-,,0,,0
+2995,Normal,,Lilongwe,LL1583,,Malembo Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,0,8,,0,,,-,,30,,0
 2996,Normal,,Mangochi,MH2515,,Malembo Health Centre,,,CHAM,CHAM,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,10,6,,90,,,-,,2,,100
 2997,Normal,,Lilongwe,LL1583,,Malembo Health Centre,,,Health Centre,Government of Malawi,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,1,6,,14,,,-,,0,,0
-2998,Normal,,Mangochi,MH2515,,Malembo Health Centre,,,CHAM,CHAM,FP003800,Male condoms,,Each,,"10,368","8,208","6,777",,"2,160",,,-,,5,,0
-2999,Normal,,Lilongwe,LL1583,,Malembo Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,"12,384","19,800",,"19,872",,,-,,0,,0
-3000,Normal,,Lilongwe,LL1583,,Malembo Health Centre,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,878,789,,"1,396",,,-,,0,,-500
-3001,Normal,,Mangochi,MH2515,,Malembo Health Centre,,,CHAM,CHAM,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,200,130,,240,,,-,,0,,0
+2998,Normal,,Lilongwe,LL1583,,Malembo Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,"12,384","19,800",,"19,872",,,-,,0,,0
+2999,Normal,,Mangochi,MH2515,,Malembo Health Centre,,,CHAM,CHAM,FP003800,Male condoms,,Each,,"10,368","8,208","6,777",,"2,160",,,-,,5,,0
+3000,Normal,,Mangochi,MH2515,,Malembo Health Centre,,,CHAM,CHAM,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,200,130,,240,,,-,,0,,0
+3001,Normal,,Lilongwe,LL1583,,Malembo Health Centre,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,878,789,,"1,396",,,-,,0,,-500
 3002,Normal,,Mangochi,MH2515,,Malembo Health Centre,,,CHAM,CHAM,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,246,323,,154,,,-,,0,,0
 3003,Normal,,Mangochi,MH2515,,Malembo Health Centre,,,CHAM,CHAM,FP000600,Oral Contraceptive Tablets - Levonogestrel Only 0.3mg (Microlut),,Each,,0,0,0,,15,,,-,,0,,0
 3004,Normal,,Mangochi,MH2515,,Malembo Health Centre,,,CHAM,CHAM,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,87,44,,18,,,-,,0,,105
@@ -4359,20 +4359,20 @@ Line #,Order Type,,District,Facility Code,,Facility Name,,,Facility Type,Facilit
 4350,Normal,,Nkhata bay,NB0308,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP002400,Copper containing IUCD (Copper T®),,Set,,0,0,0,,25,,,-,,0,,0
 4351,Normal,,Blantyre,BT241521,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP002400,Copper containing IUCD (Copper T®),,Set,,0,10,5,,8,,,-,,0,,0
 4352,Normal,,Nkhata bay,NB0308,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP002402,"Hormonal Intrauterine device (H-IUD), 6 years e.g Avibela/Mirena",,Set,,0,0,0,,1,,,-,,0,,0
-4353,Normal,,Blantyre,BT241521,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,83,42,,4,,,-,,0,,0
-4354,Normal,,Nkhata bay,NB0308,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,0,5,,45,,,-,,0,,0
+4353,Normal,,Nkhata bay,NB0308,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,0,5,,45,,,-,,0,,0
+4354,Normal,,Blantyre,BT241521,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,83,42,,4,,,-,,0,,0
 4355,Normal,,Blantyre,BT241521,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,0,5,,10,,,-,,0,,0
 4356,Normal,,Nkhata bay,NB0308,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,20,10,,10,,,-,,0,,20
-4357,Normal,,Blantyre,BT241521,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,10,10,,0,,,-,,3,,0
-4358,Normal,,Nkhata bay,NB0308,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,2,33,,0,,,-,,29,,0
+4357,Normal,,Nkhata bay,NB0308,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,2,33,,0,,,-,,29,,0
+4358,Normal,,Blantyre,BT241521,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,10,10,,0,,,-,,3,,0
 4359,Normal,,Blantyre,BT241521,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP004151,"Levoplant (Levonogetrel75mg/rod),2rod Implant,3  years Efficacy",,Vial,,0,20,10,,30,,,-,,0,,0
 4360,Normal,,Nkhata bay,NB0308,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP004151,"Levoplant (Levonogetrel75mg/rod),2rod Implant,3  years Efficacy",,Vial,,0,0,0,,10,,,-,,0,,0
-4361,Normal,,Blantyre,BT241521,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,"2,304","5,291",,0,,,-,,12,,0
-4362,Normal,,Nkhata bay,NB0308,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,"14,400","7,344",,"6,192",,,-,,0,,0
+4361,Normal,,Nkhata bay,NB0308,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,"14,400","7,344",,"6,192",,,-,,0,,0
+4362,Normal,,Blantyre,BT241521,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,"2,304","5,291",,0,,,-,,12,,0
 4363,Normal,,Nkhata bay,NB0308,,Kachere Health Centre,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,40,58,,0,,,-,,14,,0
 4364,Normal,,Nkhata bay,NB0308,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,420,310,,600,,,-,,0,,60
-4365,Normal,,Blantyre,BT241521,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,336,273,,42,,,-,,0,,0
-4366,Normal,,Nkhata bay,NB0308,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,219,164,,210,,,-,,0,,0
+4365,Normal,,Nkhata bay,NB0308,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,219,164,,210,,,-,,0,,0
+4366,Normal,,Blantyre,BT241521,,Kachere Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,336,273,,42,,,-,,0,,0
 4367,Normal,,Mzimba North,MZN0540,,Kabwafu Health Centre,,,Health Centre,Government of Malawi,BB048900,"Magnesium Sulphate, 50%, Injection, Ampoule of 2ml, Subcutaneous",,Ampoule,,0,0,0,,20,,,-,,0,,0
 4368,Normal,,Mzimba North,MZN0540,,Kabwafu Health Centre,,,Health Centre,Government of Malawi,FP002400,Copper containing IUCD (Copper T®),,Set,,0,0,9,,0,,,-,,30,,0
 4369,Normal,,Mzimba North,MZN0540,,Kabwafu Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,26,38,,0,,,-,,8,,0
@@ -5290,13 +5290,13 @@ Line #,Order Type,,District,Facility Code,,Facility Name,,,Facility Type,Facilit
 5281,Normal,,Mulanje,MJ3203,,Chinyama Health Centre,,,Health Centre,Government of Malawi,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,0,2,,0,,,-,,30,,0
 5282,Normal,,Kasungu,KU1062,,Chinyama Health Centre,,,Health Centre,Government of Malawi,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,30,35,,10,,,-,,0,,0
 5283,Normal,,Mulanje,MJ3203,,Chinyama Health Centre,,,Health Centre,Government of Malawi,FP004151,"Levoplant (Levonogetrel75mg/rod),2rod Implant,3  years Efficacy",,Vial,,0,0,0,,5,,,-,,0,,5
-5284,Normal,,Kasungu,KU1062,,Chinyama Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,288,"1,548",,0,,,-,,22,,0
-5285,Normal,,Mulanje,MJ3203,,Chinyama Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,720,"2,808",,"19,440",,,-,,0,,"19,872"
-5286,Normal,,Mulanje,MJ3203,,Chinyama Health Centre,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,100,"1,040",,200,,,-,,28,,300
-5287,Normal,,Kasungu,KU1062,,Chinyama Health Centre,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,100,100,,60,,,-,,0,,0
+5284,Normal,,Mulanje,MJ3203,,Chinyama Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,720,"2,808",,"19,440",,,-,,0,,"19,872"
+5285,Normal,,Kasungu,KU1062,,Chinyama Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,288,"1,548",,0,,,-,,22,,0
+5286,Normal,,Kasungu,KU1062,,Chinyama Health Centre,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,100,100,,60,,,-,,0,,0
+5287,Normal,,Mulanje,MJ3203,,Chinyama Health Centre,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,100,"1,040",,200,,,-,,28,,300
 5288,Normal,,Kasungu,KU1062,,Chinyama Health Centre,,,Health Centre,Government of Malawi,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,30,95,,0,,,-,,20,,0
-5289,Normal,,Mulanje,MJ3203,,Chinyama Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,0,64,,420,,,-,,0,,103
-5290,Normal,,Kasungu,KU1062,,Chinyama Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,12,30,,0,,,-,,8,,0
+5289,Normal,,Kasungu,KU1062,,Chinyama Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,12,30,,0,,,-,,8,,0
+5290,Normal,,Mulanje,MJ3203,,Chinyama Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,0,64,,420,,,-,,0,,103
 5291,Normal,,Ntchisi,NS1202,,Chinthembwe Health Centre,,,CHAM,CHAM,FP002400,Copper containing IUCD (Copper T®),,Set,,0,0,3,,20,,,-,,0,,0
 5292,Normal,,Ntchisi,NS1202,,Chinthembwe Health Centre,,,CHAM,CHAM,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,15,13,,8,,,-,,0,,0
 5293,Normal,,Ntchisi,NS1202,,Chinthembwe Health Centre,,,CHAM,CHAM,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,10,10,,10,,,-,,0,,0
@@ -5334,13 +5334,13 @@ Line #,Order Type,,District,Facility Code,,Facility Name,,,Facility Type,Facilit
 5325,Normal,,Ntchisi,NT081517,,Chinkhande Health Centre,,,Health Centre,Government of Malawi,FP000600,Oral Contraceptive Tablets - Levonogestrel Only 0.3mg (Microlut),,Each,,0,30,28,,0,,,-,,0,,0
 5326,Normal,,Ntchisi,NT081517,,Chinkhande Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,28,23,,0,,,-,,0,,0
 5327,Normal,,Salima,SA1401,,Chinguluwe Health Centre,,,Health Centre,Government of Malawi,BB048950,"Magnesium Sulphate, 20%, Injection, Ampoule of 2ml, Subcutaneous",,Each,,0,0,5,,20,,,-,,0,,0
-5328,Normal,,Ntchisi,NS1201,,Chinguluwe Health Centre,,,Health Centre,Government of Malawi,BB048900,"Magnesium Sulphate, 50%, Injection, Ampoule of 2ml, Subcutaneous",,Ampoule,,0,0,0,,30,,,-,,0,,0
-5329,Normal,,Salima,SA1401,,Chinguluwe Health Centre,,,Health Centre,Government of Malawi,BB048900,"Magnesium Sulphate, 50%, Injection, Ampoule of 2ml, Subcutaneous",,Ampoule,,0,0,5,,20,,,-,,0,,0
+5328,Normal,,Salima,SA1401,,Chinguluwe Health Centre,,,Health Centre,Government of Malawi,BB048900,"Magnesium Sulphate, 50%, Injection, Ampoule of 2ml, Subcutaneous",,Ampoule,,0,0,5,,20,,,-,,0,,0
+5329,Normal,,Ntchisi,NS1201,,Chinguluwe Health Centre,,,Health Centre,Government of Malawi,BB048900,"Magnesium Sulphate, 50%, Injection, Ampoule of 2ml, Subcutaneous",,Ampoule,,0,0,0,,30,,,-,,0,,0
 5330,Normal,,Ntchisi,NS1201,,Chinguluwe Health Centre,,,Health Centre,Government of Malawi,FP002400,Copper containing IUCD (Copper T®),,Set,,0,10,5,,55,,,-,,0,,0
 5331,Normal,,Salima,SA1401,,Chinguluwe Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,10,5,,0,,,-,,0,,0
 5332,Normal,,Ntchisi,NS1201,,Chinguluwe Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,20,15,,89,,,-,,0,,0
-5333,Normal,,Salima,SA1401,,Chinguluwe Health Centre,,,Health Centre,Government of Malawi,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,0,5,,0,,,-,,30,,0
-5334,Normal,,Ntchisi,NS1201,,Chinguluwe Health Centre,,,Health Centre,Government of Malawi,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,0,0,,300,,,-,,0,,0
+5333,Normal,,Ntchisi,NS1201,,Chinguluwe Health Centre,,,Health Centre,Government of Malawi,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,0,0,,300,,,-,,0,,0
+5334,Normal,,Salima,SA1401,,Chinguluwe Health Centre,,,Health Centre,Government of Malawi,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,0,5,,0,,,-,,30,,0
 5335,Normal,,Salima,SA1401,,Chinguluwe Health Centre,,,Health Centre,Government of Malawi,FP004151,"Levoplant (Levonogetrel75mg/rod),2rod Implant,3  years Efficacy",,Vial,,0,10,5,,0,,,-,,0,,0
 5336,Normal,,Ntchisi,NS1201,,Chinguluwe Health Centre,,,Health Centre,Government of Malawi,FP004151,"Levoplant (Levonogetrel75mg/rod),2rod Implant,3  years Efficacy",,Vial,,0,0,0,,10,,,-,,0,,0
 5337,Normal,,Salima,SA1401,,Chinguluwe Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,"12,240","11,880",,"24,222",,,-,,0,,0
@@ -5503,11 +5503,11 @@ Line #,Order Type,,District,Facility Code,,Facility Name,,,Facility Type,Facilit
 5494,Normal,,Mangochi,MH2502,,Chilipa Health Centre,,,Health Centre,Government of Malawi,FP002402,"Hormonal Intrauterine device (H-IUD), 6 years e.g Avibela/Mirena",,Set,,5,0,0,,5,,,-,,0,,0
 5495,Normal,,Mangochi,MH2502,,Chilipa Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,0,3,,0,,,-,,30,,0
 5496,Normal,,Zomba,ZA2703,,Chilipa Health Centre,,,CHAM,CHAM,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,0,0,,10,,,-,,0,,0
-5497,Normal,,Mangochi,MH2502,,Chilipa Health Centre,,,Health Centre,Government of Malawi,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,10,8,,10,,,-,,0,,0
-5498,Normal,,Zomba,ZA2703,,Chilipa Health Centre,,,CHAM,CHAM,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,0,0,,10,,,-,,0,,0
+5497,Normal,,Zomba,ZA2703,,Chilipa Health Centre,,,CHAM,CHAM,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,0,0,,10,,,-,,0,,0
+5498,Normal,,Mangochi,MH2502,,Chilipa Health Centre,,,Health Centre,Government of Malawi,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,10,8,,10,,,-,,0,,0
 5499,Normal,,Mangochi,MH2502,,Chilipa Health Centre,,,Health Centre,Government of Malawi,FP004151,"Levoplant (Levonogetrel75mg/rod),2rod Implant,3  years Efficacy",,Vial,,0,10,10,,0,,,-,,0,,0
-5500,Normal,,Zomba,ZA2703,,Chilipa Health Centre,,,CHAM,CHAM,FP003800,Male condoms,,Each,,0,0,"3,600",,"9,340",,,-,,0,,0
-5501,Normal,,Mangochi,MH2502,,Chilipa Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,"13,680","18,288",,"5,616",,,-,,0,,0
+5500,Normal,,Mangochi,MH2502,,Chilipa Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,"13,680","18,288",,"5,616",,,-,,0,,0
+5501,Normal,,Zomba,ZA2703,,Chilipa Health Centre,,,CHAM,CHAM,FP003800,Male condoms,,Each,,0,0,"3,600",,"9,340",,,-,,0,,0
 5502,Normal,,Mangochi,MH2502,,Chilipa Health Centre,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,5,288,,0,,,-,,0,,0
 5503,Normal,,Mangochi,MH2502,,Chilipa Health Centre,,,Health Centre,Government of Malawi,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,7,82,,0,,,-,,0,,0
 5504,Normal,,Zomba,ZA2703,,Chilipa Health Centre,,,CHAM,CHAM,FP000600,Oral Contraceptive Tablets - Levonogestrel Only 0.3mg (Microlut),,Each,,0,0,0,,42,,,-,,0,,0
@@ -5624,21 +5624,21 @@ Line #,Order Type,,District,Facility Code,,Facility Name,,,Facility Type,Facilit
 5615,Normal,,Ntcheu,NU1854,,Chikowa -NU036 Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,0,0,,336,,,-,,0,,0
 5616,Normal,,Lilongwe,LL1504,,Chikowa Health Centre,,,Health Centre,Government of Malawi,BB048900,"Magnesium Sulphate, 50%, Injection, Ampoule of 2ml, Subcutaneous",,Ampoule,,0,0,0,,30,,,-,,0,,0
 5617,Normal,,Blantyre,BT2903,,Chikowa Health Centre,,,Health Centre,Government of Malawi,ST062500,Female Condoms,,Piece,,0,30,15,,45,,,-,,0,,0
-5618,Normal,,Lilongwe,LL1504,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,0,5,,2,,,-,,0,,0
-5619,Normal,,Blantyre,BT2903,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,40,10,15,,70,,,-,,0,,0
+5618,Normal,,Blantyre,BT2903,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,40,10,15,,70,,,-,,0,,0
+5619,Normal,,Lilongwe,LL1504,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,0,5,,2,,,-,,0,,0
 5620,Normal,,Blantyre,BT2903,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,0,0,,160,,,-,,0,,0
 5621,Normal,,Lilongwe,LL1504,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,30,75,,20,,,-,,0,,0
-5622,Normal,,Blantyre,BT2903,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP004151,"Levoplant (Levonogetrel75mg/rod),2rod Implant,3  years Efficacy",,Vial,,0,0,0,,20,,,-,,0,,0
-5623,Normal,,Lilongwe,LL1504,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP004151,"Levoplant (Levonogetrel75mg/rod),2rod Implant,3  years Efficacy",,Vial,,0,0,0,,17,,,-,,0,,0
-5624,Normal,,Lilongwe,LL1504,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,"10,080","9,792",,"10,944",,,-,,0,,0
-5625,Normal,,Blantyre,BT2903,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,"15,984","20,448",,"27,504",,,-,,0,,"-2,304"
-5626,Normal,,Blantyre,BT2903,,Chikowa Health Centre,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,200,300,,0,,,-,,20,,200
-5627,Normal,,Lilongwe,LL1504,,Chikowa Health Centre,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,56,328,,100,,,-,,0,,0
-5628,Normal,,Lilongwe,LL1504,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,"1,600","1,700",,"1,421",,,-,,0,,0
-5629,Normal,,Blantyre,BT2903,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,0,0,,200,,,-,,0,,200
+5622,Normal,,Lilongwe,LL1504,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP004151,"Levoplant (Levonogetrel75mg/rod),2rod Implant,3  years Efficacy",,Vial,,0,0,0,,17,,,-,,0,,0
+5623,Normal,,Blantyre,BT2903,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP004151,"Levoplant (Levonogetrel75mg/rod),2rod Implant,3  years Efficacy",,Vial,,0,0,0,,20,,,-,,0,,0
+5624,Normal,,Blantyre,BT2903,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,"15,984","20,448",,"27,504",,,-,,0,,"-2,304"
+5625,Normal,,Lilongwe,LL1504,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,"10,080","9,792",,"10,944",,,-,,0,,0
+5626,Normal,,Lilongwe,LL1504,,Chikowa Health Centre,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,56,328,,100,,,-,,0,,0
+5627,Normal,,Blantyre,BT2903,,Chikowa Health Centre,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,200,300,,0,,,-,,20,,200
+5628,Normal,,Blantyre,BT2903,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,0,0,,200,,,-,,0,,200
+5629,Normal,,Lilongwe,LL1504,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,"1,600","1,700",,"1,421",,,-,,0,,0
 5630,Normal,,Lilongwe,LL1504,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP000600,Oral Contraceptive Tablets - Levonogestrel Only 0.3mg (Microlut),,Each,,0,0,0,,1,,,-,,0,,0
-5631,Normal,,Blantyre,BT2903,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,420,210,,62,,,-,,0,,482
-5632,Normal,,Lilongwe,LL1504,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,193,265,,180,,,-,,0,,0
+5631,Normal,,Lilongwe,LL1504,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,193,265,,180,,,-,,0,,0
+5632,Normal,,Blantyre,BT2903,,Chikowa Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,420,210,,62,,,-,,0,,482
 5633,Normal,,Mangochi,MH2501,,Chikole Health Centre,,,Health Centre,Government of Malawi,FP002400,Copper containing IUCD (Copper T®),,Set,,0,0,0,,9,,,-,,0,,0
 5634,Normal,,Mangochi,MH2501,,Chikole Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,10,5,,23,,,-,,0,,0
 5635,Normal,,Mangochi,MH2501,,Chikole Health Centre,,,Health Centre,Government of Malawi,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,0,0,,180,,,-,,0,,0
@@ -5677,11 +5677,11 @@ Line #,Order Type,,District,Facility Code,,Facility Name,,,Facility Type,Facilit
 5668,Normal,,Lilongwe,LL15118,,Chigodi Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,"4,608","42,684",,"7,488",,,-,,0,,"9,216"
 5669,Normal,,Lilongwe,LL15118,,Chigodi Health Centre,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,360,330,,840,,,-,,0,,0
 5670,Normal,,Ntcheu,NU1804,,Chigodi Health Centre,,,CHAM,CHAM,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,175,330,,400,,,-,,0,,400
-5671,Normal,,Lilongwe,LL15118,,Chigodi Health Centre,,,Health Centre,Government of Malawi,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,600,400,,486,,,-,,0,,0
-5672,Normal,,Ntcheu,NU1804,,Chigodi Health Centre,,,CHAM,CHAM,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,200,400,,400,,,-,,0,,600
+5671,Normal,,Ntcheu,NU1804,,Chigodi Health Centre,,,CHAM,CHAM,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,200,400,,400,,,-,,0,,600
+5672,Normal,,Lilongwe,LL15118,,Chigodi Health Centre,,,Health Centre,Government of Malawi,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,600,400,,486,,,-,,0,,0
 5673,Normal,,Ntcheu,NU1804,,Chigodi Health Centre,,,CHAM,CHAM,FP000600,Oral Contraceptive Tablets - Levonogestrel Only 0.3mg (Microlut),,Each,,0,0,0,,15,,,-,,0,,15
-5674,Normal,,Lilongwe,LL15118,,Chigodi Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,42,84,,240,,,-,,0,,0
-5675,Normal,,Ntcheu,NU1804,,Chigodi Health Centre,,,CHAM,CHAM,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,15,8,,195,,,-,,0,,210
+5674,Normal,,Ntcheu,NU1804,,Chigodi Health Centre,,,CHAM,CHAM,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,15,8,,195,,,-,,0,,210
+5675,Normal,,Lilongwe,LL15118,,Chigodi Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,42,84,,240,,,-,,0,,0
 5676,Normal,,Neno,NE3701,,Chifunga Health Centre,,,Health Centre,Government of Malawi,BB048900,"Magnesium Sulphate, 50%, Injection, Ampoule of 2ml, Subcutaneous",,Ampoule,,0,0,0,,20,,,-,,0,,0
 5677,Normal,,Neno,NE3701,,Chifunga Health Centre,,,Health Centre,Government of Malawi,FP002400,Copper containing IUCD (Copper T®),,Set,,0,0,0,,26,,,-,,0,,0
 5678,Normal,,Neno,NE3701,,Chifunga Health Centre,,,Health Centre,Government of Malawi,ST062500,Female Condoms,,Piece,,0,10,5,,35,,,-,,0,,0
@@ -5710,16 +5710,16 @@ Line #,Order Type,,District,Facility Code,,Facility Name,,,Facility Type,Facilit
 5701,Normal,,Nsanje,NJ3401,,Chididi Health Centre,,,CHAM,CHAM,FP002400,Copper containing IUCD (Copper T®),,Set,,0,0,0,,3,,,-,,0,,0
 5702,Normal,,Nkhota Kota,KK1103,,Chididi Health Centre,,,CHAM,CHAM,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,0,10,,86,,,-,,0,,0
 5703,Normal,,Nsanje,NJ3401,,Chididi Health Centre,,,CHAM,CHAM,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,0,3,,43,,,-,,0,,0
-5704,Normal,,Nsanje,NJ3401,,Chididi Health Centre,,,CHAM,CHAM,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,10,5,,20,,,-,,0,,0
-5705,Normal,,Nkhota Kota,KK1103,,Chididi Health Centre,,,CHAM,CHAM,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,10,25,,0,,,-,,0,,0
+5704,Normal,,Nkhota Kota,KK1103,,Chididi Health Centre,,,CHAM,CHAM,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,10,25,,0,,,-,,0,,0
+5705,Normal,,Nsanje,NJ3401,,Chididi Health Centre,,,CHAM,CHAM,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,10,5,,20,,,-,,0,,0
 5706,Normal,,Nsanje,NJ3401,,Chididi Health Centre,,,CHAM,CHAM,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,16,30,,82,,,-,,0,,0
 5707,Normal,,Nkhota Kota,KK1103,,Chididi Health Centre,,,CHAM,CHAM,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,0,29,,0,,,-,,30,,0
 5708,Normal,,Nsanje,NJ3401,,Chididi Health Centre,,,CHAM,CHAM,FP004151,"Levoplant (Levonogetrel75mg/rod),2rod Implant,3  years Efficacy",,Vial,,0,0,0,,30,,,-,,0,,30
 5709,Normal,,Nkhota Kota,KK1103,,Chididi Health Centre,,,CHAM,CHAM,FP004151,"Levoplant (Levonogetrel75mg/rod),2rod Implant,3  years Efficacy",,Vial,,0,0,0,,30,,,-,,0,,0
-5710,Normal,,Nsanje,NJ3401,,Chididi Health Centre,,,CHAM,CHAM,FP003800,Male condoms,,Each,,0,"3,600","6,048",,"4,176",,,-,,0,,0
-5711,Normal,,Nkhota Kota,KK1103,,Chididi Health Centre,,,CHAM,CHAM,FP003800,Male condoms,,Each,,0,"12,528","6,336",,"15,552",,,-,,0,,0
-5712,Normal,,Nkhota Kota,KK1103,,Chididi Health Centre,,,CHAM,CHAM,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,400,360,,700,,,-,,0,,0
-5713,Normal,,Nsanje,NJ3401,,Chididi Health Centre,,,CHAM,CHAM,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,0,3,,0,,,-,,30,,0
+5710,Normal,,Nkhota Kota,KK1103,,Chididi Health Centre,,,CHAM,CHAM,FP003800,Male condoms,,Each,,0,"12,528","6,336",,"15,552",,,-,,0,,0
+5711,Normal,,Nsanje,NJ3401,,Chididi Health Centre,,,CHAM,CHAM,FP003800,Male condoms,,Each,,0,"3,600","6,048",,"4,176",,,-,,0,,0
+5712,Normal,,Nsanje,NJ3401,,Chididi Health Centre,,,CHAM,CHAM,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,0,3,,0,,,-,,30,,0
+5713,Normal,,Nkhota Kota,KK1103,,Chididi Health Centre,,,CHAM,CHAM,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,400,360,,700,,,-,,0,,0
 5714,Normal,,Nsanje,NJ3401,,Chididi Health Centre,,,CHAM,CHAM,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,340,170,,65,,,-,,0,,405
 5715,Normal,,Nsanje,NJ3401,,Chididi Health Centre,,,CHAM,CHAM,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,137,132,,336,,,-,,0,,0
 5716,Normal,,Dowa,DA1336,,Chezi Mission Hospital,,,CHAM,CHAM,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,0,5,,10,,,-,,0,,0
@@ -5955,19 +5955,19 @@ Line #,Order Type,,District,Facility Code,,Facility Name,,,Facility Type,Facilit
 5946,Normal,,Nkhata bay,NB0301,,Bula Health Centre,,,Health Centre,Government of Malawi,FP004900,"Medroxyprogesterone Acetate,Subcutaneous Injection, 104mg/0.65ml e.g  Sayana Press",,Each,,0,80,101,,250,,,-,,0,,0
 5947,Normal,,Nkhata bay,NB0301,,Bula Health Centre,,,Health Centre,Government of Malawi,FP000200,"Oral Contraceptive, combined low oestrogen (Microgynon) Ethinylestradiol 0.03mg + Levonorgestrel 0.15mg",,Cycle,,0,57,53,,114,,,-,,0,,0
 5948,Normal,,Nkhota Kota,KK1102,,Bua Health Centre,,,Health Centre,Government of Malawi,BB021301,"Dexamethasone Injection 5mg/2ml,2ml",,Each,,20,0,0,,20,,,-,,22,,0
-5949,Normal,,Nkhota Kota,KK1102,,Bua Health Centre,,,Health Centre,Government of Malawi,BB048900,"Magnesium Sulphate, 50%, Injection, Ampoule of 2ml, Subcutaneous",,Ampoule,,0,0,0,,30,,,-,,0,,0
-5950,Normal,,Kasungu,KU1001,,Bua Health Centre,,,Health Centre,Government of Malawi,BB048900,"Magnesium Sulphate, 50%, Injection, Ampoule of 2ml, Subcutaneous",,Ampoule,,0,0,0,,200,,,-,,0,,0
+5949,Normal,,Kasungu,KU1001,,Bua Health Centre,,,Health Centre,Government of Malawi,BB048900,"Magnesium Sulphate, 50%, Injection, Ampoule of 2ml, Subcutaneous",,Ampoule,,0,0,0,,200,,,-,,0,,0
+5950,Normal,,Nkhota Kota,KK1102,,Bua Health Centre,,,Health Centre,Government of Malawi,BB048900,"Magnesium Sulphate, 50%, Injection, Ampoule of 2ml, Subcutaneous",,Ampoule,,0,0,0,,30,,,-,,0,,0
 5951,Normal,,Kasungu,KU1001,,Bua Health Centre,,,Health Centre,Government of Malawi,FP002400,Copper containing IUCD (Copper T®),,Set,,0,0,0,,10,,,-,,0,,0
 5952,Normal,,Kasungu,KU1001,,Bua Health Centre,,,Health Centre,Government of Malawi,ST062500,Female Condoms,,Piece,,0,0,0,,25,,,-,,0,,0
 5953,Normal,,Nkhota Kota,KK1102,,Bua Health Centre,,,Health Centre,Government of Malawi,FP002402,"Hormonal Intrauterine device (H-IUD), 6 years e.g Avibela/Mirena",,Set,,0,0,0,,3,,,-,,0,,0
 5954,Normal,,Kasungu,KU1001,,Bua Health Centre,,,Health Centre,Government of Malawi,FP002402,"Hormonal Intrauterine device (H-IUD), 6 years e.g Avibela/Mirena",,Set,,0,0,0,,3,,,-,,0,,0
-5955,Normal,,Nkhota Kota,KK1102,,Bua Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,5,6,,0,,,-,,4,,0
-5956,Normal,,Kasungu,KU1001,,Bua Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,22,56,,0,,,-,,14,,0
+5955,Normal,,Kasungu,KU1001,,Bua Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,22,56,,0,,,-,,14,,0
+5956,Normal,,Nkhota Kota,KK1102,,Bua Health Centre,,,Health Centre,Government of Malawi,FP004100,"Implanon (Etonogestrel 68mg),Implant,1 rod,",,Pack,,0,5,6,,0,,,-,,4,,0
 5957,Normal,,Nkhota Kota,KK1102,,Bua Health Centre,,,Health Centre,Government of Malawi,FP003700,"Jadelle( Levonorgestrel  75mg/rod),2rod Implant,5  year Efficacy",,Set,,0,10,5,,20,,,-,,0,,0
 5958,Normal,,Nkhota Kota,KK1102,,Bua Health Centre,,,Health Centre,Government of Malawi,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,5,6,,0,,,-,,1,,0
 5959,Normal,,Kasungu,KU1001,,Bua Health Centre,,,Health Centre,Government of Malawi,FP004700,"Levonorgestrel (0.75mg, 2 Tab) or (1.5mg, 1 Tab) Pack - Emergency Pill",,Piece,,0,103,69,,44,,,-,,0,,0
-5960,Normal,,Nkhota Kota,KK1102,,Bua Health Centre,,,Health Centre,Government of Malawi,FP004151,"Levoplant (Levonogetrel75mg/rod),2rod Implant,3  years Efficacy",,Vial,,0,0,0,,30,,,-,,0,,0
-5961,Normal,,Kasungu,KU1001,,Bua Health Centre,,,Health Centre,Government of Malawi,FP004151,"Levoplant (Levonogetrel75mg/rod),2rod Implant,3  years Efficacy",,Vial,,0,0,0,,30,,,-,,0,,0
+5960,Normal,,Kasungu,KU1001,,Bua Health Centre,,,Health Centre,Government of Malawi,FP004151,"Levoplant (Levonogetrel75mg/rod),2rod Implant,3  years Efficacy",,Vial,,0,0,0,,30,,,-,,0,,0
+5961,Normal,,Nkhota Kota,KK1102,,Bua Health Centre,,,Health Centre,Government of Malawi,FP004151,"Levoplant (Levonogetrel75mg/rod),2rod Implant,3  years Efficacy",,Vial,,0,0,0,,30,,,-,,0,,0
 5962,Normal,,Kasungu,KU1001,,Bua Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,0,"8,640","9,648",,144,,,-,,0,,0
 5963,Normal,,Nkhota Kota,KK1102,,Bua Health Centre,,,Health Centre,Government of Malawi,FP003800,Male condoms,,Each,,"13,392","9,072","6,340",,"5,896",,,-,,0,,0
 5964,Normal,,Nkhota Kota,KK1102,,Bua Health Centre,,,Health Centre,Government of Malawi,BB049500,"Medroxyprogesterone Acetate Intramuscular Injection, 150mg/ml e.g Depo Provera/Triclofem,",,Cycle,,0,140,113,,580,,,-,,0,,0

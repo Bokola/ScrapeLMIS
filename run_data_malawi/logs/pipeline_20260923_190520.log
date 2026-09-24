@@ -1,0 +1,78 @@
+2026-09-23 19:05:20 INFO     __main__: Logging this run to run_data_malawi\logs\pipeline_20260923_190520.log
+2026-09-23 19:05:20 INFO     __main__: Will generate the report for 4 period(s): ['Jun2026', 'Jul2026', 'Aug2026', 'Sep2026']
+2026-09-23 19:05:33 INFO     lmis_pipeline.scraper_base: Found saved session state at run_data_malawi\storage_state.json
+2026-09-23 19:05:34 INFO     lmis_pipeline.scraper_base: Applied playwright-stealth evasions to browser context
+2026-09-23 19:05:34 INFO     lmis_pipeline.malawi_scraper: Verifying saved session is still valid
+2026-09-23 19:05:43 INFO     lmis_pipeline.malawi_scraper: Saved session is no longer valid - logging in fresh
+2026-09-23 19:05:43 INFO     lmis_pipeline.malawi_scraper: Navigating to Malawi LMIS
+2026-09-23 19:05:48 INFO     lmis_pipeline.malawi_scraper: Entering username
+2026-09-23 19:05:48 INFO     lmis_pipeline.malawi_scraper: Entering password
+2026-09-23 19:05:48 INFO     lmis_pipeline.malawi_scraper: Submitting login form
+2026-09-23 19:05:49 INFO     lmis_pipeline.malawi_scraper: Dismissing weak-password warning modal
+2026-09-23 19:06:00 INFO     lmis_pipeline.malawi_scraper: Login successful
+2026-09-23 19:06:00 INFO     lmis_pipeline.malawi_scraper: Saved session state to run_data_malawi\storage_state.json
+2026-09-23 19:06:00 INFO     __main__: === Period: Jun2026 ===
+2026-09-23 19:06:00 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-09-23 19:06:00 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-09-23 19:06:00 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-09-23 19:06:03 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: Reproductive Health
+2026-09-23 19:06:05 INFO     lmis_pipeline.malawi_scraper: Selecting Period Name: Jun2026
+2026-09-23 19:06:06 INFO     lmis_pipeline.malawi_scraper: Selecting xlsx format
+2026-09-23 19:06:06 INFO     lmis_pipeline.malawi_scraper: Clicking Generate and waiting for the file
+2026-09-23 19:06:50 INFO     lmis_pipeline.malawi_scraper: Saved downloaded results to run_data_malawi\downloads\20260923T190649_lmis_summary_by_facility_reproductive_health_jun2026.xlsx
+2026-09-23 19:06:54 INFO     __main__: Staged raw download (as CSV) to run_data_malawi\landing\LMIS_MW_01-06-2026.csv
+2026-09-23 19:06:54 INFO     __main__: Staged raw download for Jun2026 to run_data_malawi\landing\LMIS_MW_01-06-2026.csv
+2026-09-23 19:06:58 INFO     __main__: Parsed 6210 rows, 17 columns (incl. Period) from run_data_malawi\downloads\20260923T190649_lmis_summary_by_facility_reproductive_health_jun2026.xlsx
+2026-09-23 19:06:58 WARNING  __main__: Validation failed - missing columns: ['Província', 'Código da instalação', 'Nome da instalação', 'Código do produto', 'Nome do produto', 'Período de análise']
+2026-09-23 19:07:05 INFO     lmis_pipeline.extract: Upsert: 19871 existing + 6210 new rows -> 19871 after dedup on ['Facility Code', 'Product Code', 'Period'] (6210 row(s) updated in place)
+2026-09-23 19:07:12 INFO     lmis_pipeline.extract: Wrote 19871 total row(s) to run_data_malawi\extracts\LMIS_MW.xlsx and run_data_malawi\extracts\LMIS_MW.csv
+2026-09-23 19:07:12 INFO     __main__: Upserted period Jun2026 into master files at (WindowsPath('run_data_malawi/extracts/LMIS_MW.xlsx'), WindowsPath('run_data_malawi/extracts/LMIS_MW.csv'))
+2026-09-23 19:07:12 INFO     __main__: === Period: Jul2026 ===
+2026-09-23 19:07:12 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-09-23 19:07:12 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-09-23 19:07:12 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-09-23 19:07:12 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: Reproductive Health
+2026-09-23 19:07:15 INFO     lmis_pipeline.malawi_scraper: Selecting Period Name: Jul2026
+2026-09-23 19:07:16 INFO     lmis_pipeline.malawi_scraper: Selecting xlsx format
+2026-09-23 19:07:16 INFO     lmis_pipeline.malawi_scraper: Clicking Generate and waiting for the file
+2026-09-23 19:07:28 INFO     lmis_pipeline.malawi_scraper: Saved downloaded results to run_data_malawi\downloads\20260923T190727_lmis_summary_by_facility_reproductive_health_jul2026.xlsx
+2026-09-23 19:07:32 INFO     __main__: Staged raw download (as CSV) to run_data_malawi\landing\LMIS_MW_01-07-2026.csv
+2026-09-23 19:07:32 INFO     __main__: Staged raw download for Jul2026 to run_data_malawi\landing\LMIS_MW_01-07-2026.csv
+2026-09-23 19:07:34 INFO     __main__: Parsed 6790 rows, 17 columns (incl. Period) from run_data_malawi\downloads\20260923T190727_lmis_summary_by_facility_reproductive_health_jul2026.xlsx
+2026-09-23 19:07:34 WARNING  __main__: Validation failed - missing columns: ['Província', 'Código da instalação', 'Nome da instalação', 'Código do produto', 'Nome do produto', 'Período de análise']
+2026-09-23 19:07:38 INFO     lmis_pipeline.extract: Upsert: 19871 existing + 6790 new rows -> 19878 after dedup on ['Facility Code', 'Product Code', 'Period'] (6783 row(s) updated in place)
+2026-09-23 19:07:46 INFO     lmis_pipeline.extract: Wrote 19878 total row(s) to run_data_malawi\extracts\LMIS_MW.xlsx and run_data_malawi\extracts\LMIS_MW.csv
+2026-09-23 19:07:46 INFO     __main__: Upserted period Jul2026 into master files at (WindowsPath('run_data_malawi/extracts/LMIS_MW.xlsx'), WindowsPath('run_data_malawi/extracts/LMIS_MW.csv'))
+2026-09-23 19:07:46 INFO     __main__: === Period: Aug2026 ===
+2026-09-23 19:07:46 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-09-23 19:07:46 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-09-23 19:07:46 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-09-23 19:07:46 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: Reproductive Health
+2026-09-23 19:07:49 INFO     lmis_pipeline.malawi_scraper: Selecting Period Name: Aug2026
+2026-09-23 19:07:50 INFO     lmis_pipeline.malawi_scraper: Selecting xlsx format
+2026-09-23 19:07:50 INFO     lmis_pipeline.malawi_scraper: Clicking Generate and waiting for the file
+2026-09-23 19:08:01 INFO     lmis_pipeline.malawi_scraper: Saved downloaded results to run_data_malawi\downloads\20260923T190801_lmis_summary_by_facility_reproductive_health_aug2026.xlsx
+2026-09-23 19:08:06 INFO     __main__: Staged raw download (as CSV) to run_data_malawi\landing\LMIS_MW_01-08-2026.csv
+2026-09-23 19:08:06 INFO     __main__: Staged raw download for Aug2026 to run_data_malawi\landing\LMIS_MW_01-08-2026.csv
+2026-09-23 19:08:10 INFO     __main__: Parsed 6890 rows, 17 columns (incl. Period) from run_data_malawi\downloads\20260923T190801_lmis_summary_by_facility_reproductive_health_aug2026.xlsx
+2026-09-23 19:08:10 WARNING  __main__: Validation failed - missing columns: ['Província', 'Código da instalação', 'Nome da instalação', 'Código do produto', 'Nome do produto', 'Período de análise']
+2026-09-23 19:08:16 INFO     lmis_pipeline.extract: Upsert: 19878 existing + 6890 new rows -> 19890 after dedup on ['Facility Code', 'Product Code', 'Period'] (6878 row(s) updated in place)
+2026-09-23 19:08:23 INFO     lmis_pipeline.extract: Wrote 19890 total row(s) to run_data_malawi\extracts\LMIS_MW.xlsx and run_data_malawi\extracts\LMIS_MW.csv
+2026-09-23 19:08:23 INFO     __main__: Upserted period Aug2026 into master files at (WindowsPath('run_data_malawi/extracts/LMIS_MW.xlsx'), WindowsPath('run_data_malawi/extracts/LMIS_MW.csv'))
+2026-09-23 19:08:23 INFO     __main__: === Period: Sep2026 ===
+2026-09-23 19:08:23 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-09-23 19:08:23 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-09-23 19:08:23 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-09-23 19:08:24 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: Reproductive Health
+2026-09-23 19:08:26 INFO     lmis_pipeline.malawi_scraper: Selecting Period Name: Sep2026
+2026-09-23 19:08:27 INFO     lmis_pipeline.malawi_scraper: Selecting xlsx format
+2026-09-23 19:08:27 INFO     lmis_pipeline.malawi_scraper: Clicking Generate and waiting for the file
+2026-09-23 19:08:31 INFO     lmis_pipeline.malawi_scraper: Saved downloaded results to run_data_malawi\downloads\20260923T190830_lmis_summary_by_facility_reproductive_health_sep2026.xlsx
+2026-09-23 19:08:31 INFO     __main__: Staged raw download (as CSV) to run_data_malawi\landing\LMIS_MW_01-09-2026.csv
+2026-09-23 19:08:31 INFO     __main__: Staged raw download for Sep2026 to run_data_malawi\landing\LMIS_MW_01-09-2026.csv
+2026-09-23 19:08:31 INFO     __main__: Parsed 0 rows, 17 columns (incl. Period) from run_data_malawi\downloads\20260923T190830_lmis_summary_by_facility_reproductive_health_sep2026.xlsx
+2026-09-23 19:08:31 WARNING  lmis_pipeline.schema_validation: Extract is empty - nothing to validate
+2026-09-23 19:08:31 WARNING  __main__: Validation failed - missing columns: ['Província', 'Código da instalação', 'Nome da instalação', 'Código do produto', 'Nome do produto', 'Período de análise']
+2026-09-23 19:08:37 INFO     lmis_pipeline.extract: Upsert: 19890 existing + 0 new rows -> 19890 after dedup on ['Facility Code', 'Product Code', 'Period'] (0 row(s) updated in place)
+2026-09-23 19:08:45 INFO     lmis_pipeline.extract: Wrote 19890 total row(s) to run_data_malawi\extracts\LMIS_MW.xlsx and run_data_malawi\extracts\LMIS_MW.csv
+2026-09-23 19:08:45 INFO     __main__: Upserted period Sep2026 into master files at (WindowsPath('run_data_malawi/extracts/LMIS_MW.xlsx'), WindowsPath('run_data_malawi/extracts/LMIS_MW.csv'))
