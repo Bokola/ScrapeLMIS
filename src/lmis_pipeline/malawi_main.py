@@ -21,7 +21,8 @@ from .config import Config, ConfigError
 from .extract import upsert_to_excel_and_csv
 from .logger import enable_file_logging, get_logger
 from .malawi_scraper import ScraperError, open_browser
-from .schema_validation import validate_extract
+from .periods import month_abbr_period, month_window
+from .schema_validation import MALAWI_SUMMARY_SCHEMA, validate_extract
 
 log = get_logger(__name__)
 
@@ -30,21 +31,18 @@ class PipelineError(RuntimeError):
     pass
 
 
-def recent_month_periods(n: int, today: date | None = None) -> list[str]:
-    """Return the last n months in Malawi's report format (e.g. "Sep2026"),
-    inclusive of the current month, oldest first - e.g. on 2026-09-10 with
-    n=4: ["Jun2026", "Jul2026", "Aug2026", "Sep2026"].
+def recent_month_periods(n: int, offset: int = 0, today: date | None = None) -> list[str]:
+    """Return n months in Malawi's report format (e.g. "Sep2026"), oldest
+    first, ending offset months before the current month - e.g. on
+    2026-09-10 with n=4, offset=0 (the original default): ["Jun2026",
+    "Jul2026", "Aug2026", "Sep2026"]. With n=2, offset=2: ["Jun2026",
+    "Jul2026"] - skipping August and September entirely.
+
+    Thin wrapper over periods.month_window() (shared with Mozambique's
+    equivalent client-side filter in main.py) plus Malawi's own
+    "Mon"+"YYYY" formatting.
     """
-    today = today or date.today()
-    year, month = today.year, today.month
-    periods: list[str] = []
-    for _ in range(n):
-        periods.append(f"{calendar.month_abbr[month]}{year}")
-        month -= 1
-        if month == 0:
-            month = 12
-            year -= 1
-    return list(reversed(periods))
+    return [month_abbr_period(y, m) for y, m in month_window(n, offset, today)]
 
 
 _MONTH_ABBR_TO_NUM = {abbr: i for i, abbr in enumerate(calendar.month_abbr) if abbr}
@@ -185,7 +183,8 @@ def run(cfg: Config) -> tuple[Path, Path]:
         raise PipelineError("config_malawi.yaml's filters.program_name is not set")
 
     n_months = cfg.get("filters.period_months", 4)
-    periods = recent_month_periods(n_months)
+    offset_months = cfg.get("filters.period_offset_months", 0)
+    periods = recent_month_periods(n_months, offset=offset_months)
     log.info("Will generate the report for %d period(s): %s", len(periods), periods)
 
     download_dir = cfg.get("output.download_dir", "./run_data_malawi/downloads")
@@ -226,7 +225,7 @@ def run(cfg: Config) -> tuple[Path, Path]:
                 # filled in for Malawi - see config_malawi.yaml's own note
                 # on this. Left permissive by default since there's no
                 # confirmed schema yet.
-                validation = validate_extract(df)
+                validation = validate_extract(df, schema=MALAWI_SUMMARY_SCHEMA)
                 if not validation.ok:
                     log.warning(validation.summary())
                     if cfg.get("validation.fail_on_error", False):

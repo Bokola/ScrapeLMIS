@@ -9,6 +9,7 @@ leaves a raw capture on disk to diagnose against.
 """
 from __future__ import annotations
 
+import csv
 from pathlib import Path
 
 import pandas as pd
@@ -47,8 +48,18 @@ def _reorder_columns(df: pd.DataFrame, excel_columns: list[str]) -> pd.DataFrame
     return df[ordered + extra]
 
 
-def _write_formatted_excel(df: pd.DataFrame, path: Path, sheet_name: str) -> None:
-    """Shared formatting: bold+frozen header row, auto-sized columns."""
+def _write_formatted_excel(
+    df: pd.DataFrame, path: Path, sheet_name: str, second_header: dict[str, str] | None = None
+) -> None:
+    """Shared formatting: bold+frozen header row(s), auto-sized columns.
+
+    second_header, if given, maps each column name to a second label
+    (e.g. a translation) inserted as its own bold row directly below the
+    real header row - both rows are then frozen together. Used for
+    Mozambique's dual English/Portuguese header requirement; None
+    (default) writes a single header row exactly as before, which is what
+    Malawi still uses.
+    """
     if df.empty:
         log.warning("DataFrame is empty - writing a header-only workbook to %s", path)
 
@@ -56,19 +67,33 @@ def _write_formatted_excel(df: pd.DataFrame, path: Path, sheet_name: str) -> Non
         df.to_excel(writer, sheet_name=sheet_name, index=False)
         worksheet = writer.sheets[sheet_name]
 
+        header_rows = 1
+        if second_header:
+            worksheet.insert_rows(2)
+            for col_idx, column in enumerate(df.columns, start=1):
+                cell = worksheet.cell(row=2, column=col_idx)
+                cell.value = second_header.get(column, column)
+                cell.font = cell.font.copy(bold=True)
+            header_rows = 2
+
         for cell in worksheet[1]:
             cell.font = cell.font.copy(bold=True)
-        worksheet.freeze_panes = "A2"
+        worksheet.freeze_panes = f"A{header_rows + 1}"
 
         for col_idx, column in enumerate(df.columns, start=1):
-            max_len = max(
-                [len(str(column))] + [len(str(v)) for v in df[column].astype(str)]
-            ) if len(df) else len(str(column))
+            lengths = [len(str(column))]
+            if second_header:
+                lengths.append(len(str(second_header.get(column, column))))
+            if len(df):
+                lengths.extend(len(str(v)) for v in df[column].astype(str))
+            max_len = max(lengths)
             col_letter = worksheet.cell(row=1, column=col_idx).column_letter
             worksheet.column_dimensions[col_letter].width = min(max_len + 2, 60)
 
 
-def upsert_to_excel_and_csv(df_new: pd.DataFrame, cfg: Config) -> tuple[Path, Path]:
+def upsert_to_excel_and_csv(
+    df_new: pd.DataFrame, cfg: Config, second_header: dict[str, str] | None = None
+) -> tuple[Path, Path]:
     """Write df_new into persistent master files in BOTH .xlsx and .csv
     formats, updating existing rows in place (matched on config's
     dedup_key) rather than duplicating them.
@@ -85,6 +110,14 @@ def upsert_to_excel_and_csv(df_new: pd.DataFrame, cfg: Config) -> tuple[Path, Pa
     output.master_filename, which named a single file with its own
     extension.
 
+    second_header, if given, maps each column name to a second label
+    (e.g. a translation) written as its own row directly below the real
+    header row, in BOTH files - per Mozambique's dual English/Portuguese
+    header requirement. None (default, what Malawi uses) writes a single
+    header row exactly as before. When given, that second row is always
+    skipped again when reading either file back in on a later run (so it
+    never gets treated as a real data row and silently accumulated).
+
     The existing merged state is read from whichever of the two files
     exists (preferring .xlsx if both do, since read_excel's dtype
     handling is a bit more precise than a round-tripped CSV) - if only one
@@ -99,15 +132,17 @@ def upsert_to_excel_and_csv(df_new: pd.DataFrame, cfg: Config) -> tuple[Path, Pa
     dedup_key = cfg.get("dedup_key", [])
 
     xlsx_path = out_dir / f"{base_name}.xlsx"
-    csv_path = out_dir / f"{base_name}.csv"
+    csv_path = out_dir / f"{base_name}_auto.csv"  # "_auto" per explicit request, applies to
+                                                    # both countries since this function is shared
 
     df_new = _reorder_columns(df_new, excel_columns)
+    skip_second_row = [1] if second_header else None
 
     existing = None
     if xlsx_path.exists():
-        existing = pd.read_excel(xlsx_path, sheet_name=sheet_name)
+        existing = pd.read_excel(xlsx_path, sheet_name=sheet_name, skiprows=skip_second_row)
     elif csv_path.exists():
-        existing = pd.read_csv(csv_path, dtype=str)
+        existing = pd.read_csv(csv_path, dtype=str, skiprows=skip_second_row)
 
     if existing is not None:
         existing = _reorder_columns(existing, excel_columns)
@@ -139,10 +174,28 @@ def upsert_to_excel_and_csv(df_new: pd.DataFrame, cfg: Config) -> tuple[Path, Pa
         log.info("No existing master files at %s.{xlsx,csv} - creating them fresh", out_dir / base_name)
 
     combined = _reorder_columns(combined, excel_columns)
-    _write_formatted_excel(combined, xlsx_path, sheet_name)
-    combined.to_csv(csv_path, index=False)
+    _write_formatted_excel(combined, xlsx_path, sheet_name, second_header=second_header)
+    _write_csv_with_second_header(combined, csv_path, second_header=second_header)
     log.info("Wrote %d total row(s) to %s and %s", len(combined), xlsx_path, csv_path)
     return xlsx_path, csv_path
+
+
+def _write_csv_with_second_header(
+    df: pd.DataFrame, path: Path, second_header: dict[str, str] | None = None
+) -> None:
+    """Write df to CSV, with an optional second header row (see
+    upsert_to_excel_and_csv's second_header) directly below the real
+    header row. None writes a plain single-header CSV exactly as before.
+    """
+    if not second_header:
+        df.to_csv(path, index=False)
+        return
+
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(list(df.columns))
+        writer.writerow([second_header.get(c, c) for c in df.columns])
+        df.to_csv(f, index=False, header=False)
 
 
 def upsert_to_csv(df_new: pd.DataFrame, cfg: Config) -> Path:

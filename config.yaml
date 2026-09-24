@@ -118,6 +118,20 @@ filters:
   # dashboard's own URL).
   period_months: 4
 
+  # Client-side trim applied AFTER download, per explicit request: SIMAM's
+  # own period widget above only supports a trailing span ending at the
+  # CURRENT month, with no way to lag/offset it - so period_months is left
+  # wide enough to cover the desired window, and this narrows the
+  # downloaded data down to exactly it afterward (see main.py's
+  # filter_to_period_window()). output_period_offset=0 would be a no-op -
+  # the site's own trailing window already matches that case. Currently
+  # set to keep the last 3 months excluding the current one - e.g. run in
+  # September -> June, July, August; run in October -> July, August,
+  # September. Note this is a ROLLING lag from whenever the pipeline
+  # actually runs, not fixed calendar months.
+  output_period_count: 3
+  output_period_offset: 1
+
   # Optional: restrict the Requisition Data Report to specific products via
   # its "Nome do produto" dashboard filter, instead of pulling every
   # product in the country. Leave empty (`products: []`) to skip filtering

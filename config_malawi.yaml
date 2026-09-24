@@ -76,11 +76,20 @@ filters:
   # select on every run.
   program_name: "Reproductive Health"
 
-  # How many months to pull, inclusive of the current month - e.g. 4 on
-  # 2026-09-10 means periods Jun2026, Jul2026, Aug2026, Sep2026. The report
-  # form takes exactly one period per generation, so main.py loops over
-  # this many periods, generating and downloading once per period.
-  period_months: 4
+  # How many months to pull, and how far back the window ENDS from the
+  # current month (period_offset_months) - e.g. period_months=3,
+  # period_offset_months=1 on 2026-09-10 means periods Jun2026, Jul2026,
+  # Aug2026 (the last 3 months, excluding the current month; run in
+  # October instead -> Jul2026, Aug2026, Sep2026). Note this is a ROLLING
+  # lag from whenever the pipeline actually runs, not fixed calendar
+  # months. period_offset_months=0 means the window ends at the current
+  # month, same as the original default before this setting existed. The
+  # report form takes exactly one period per generation, so main.py loops
+  # over this many periods, generating and downloading once per period -
+  # unlike Mozambique, no client-side trim is needed here, since each
+  # period is requested from the site directly.
+  period_months: 3
+  period_offset_months: 1
 
   # NOT CONFIRMED to exist as a site-side filter: unlike Mozambique's
   # "Nome do produto" widget, Malawi's "LMIS Summary by facility" report

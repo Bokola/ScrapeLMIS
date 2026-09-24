@@ -41,6 +41,25 @@ LMIS_REQUISITION_SCHEMA = DataFrameSchema(
     coerce=True,  # facility/product codes can come back as numeric-looking strings
 )
 
+# Malawi's "LMIS Summary by facility" report - CONFIRMED columns (see
+# malawi_main.py's read_malawi_report()). A previous version of
+# malawi_main.py called validate_extract(df) with no schema argument,
+# which silently defaulted to LMIS_REQUISITION_SCHEMA above (Mozambique's
+# Portuguese columns) - producing a spurious "missing columns: Província,
+# Código da instalação..." warning on every single Malawi run, checking
+# entirely the wrong country's schema. This is the real one to use
+# instead.
+MALAWI_SUMMARY_SCHEMA = DataFrameSchema(
+    {
+        "Facility Code": Column(str, Check.str_length(min_value=1), nullable=False),
+        "Product Code": Column(str, Check.str_length(min_value=1), nullable=False),
+        "Product": Column(str, Check.str_length(min_value=1), nullable=False),
+        "Period": Column(str, Check.str_length(min_value=1), nullable=False),
+    },
+    strict=False,
+    coerce=True,
+)
+
 
 @dataclass
 class ValidationResult:

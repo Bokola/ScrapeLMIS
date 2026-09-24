@@ -1,0 +1,51 @@
+2026-09-24 09:09:07 INFO     __main__: Logging this run to run_data_malawi\logs\pipeline_20260924_090907.log
+2026-09-24 09:09:07 INFO     __main__: Will generate the report for 3 period(s): ['Jun2026', 'Jul2026', 'Aug2026']
+2026-09-24 09:09:08 INFO     lmis_pipeline.scraper_base: Found saved session state at run_data_malawi\storage_state.json
+2026-09-24 09:09:09 INFO     lmis_pipeline.scraper_base: Applied playwright-stealth evasions to browser context
+2026-09-24 09:09:09 INFO     lmis_pipeline.malawi_scraper: Verifying saved session is still valid
+2026-09-24 09:09:14 INFO     lmis_pipeline.malawi_scraper: Saved session is valid - skipping login
+2026-09-24 09:09:14 INFO     __main__: === Period: Jun2026 ===
+2026-09-24 09:09:14 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-09-24 09:09:14 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-09-24 09:09:14 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-09-24 09:09:15 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: Reproductive Health
+2026-09-24 09:09:18 INFO     lmis_pipeline.malawi_scraper: Selecting Period Name: Jun2026
+2026-09-24 09:09:18 INFO     lmis_pipeline.malawi_scraper: Selecting xlsx format
+2026-09-24 09:09:18 INFO     lmis_pipeline.malawi_scraper: Clicking Generate and waiting for the file
+2026-09-24 09:09:29 INFO     lmis_pipeline.malawi_scraper: Saved downloaded results to run_data_malawi\downloads\20260924T090929_lmis_summary_by_facility_reproductive_health_jun2026.xlsx
+2026-09-24 09:09:34 INFO     __main__: Staged raw download (as CSV) to run_data_malawi\landing\LMIS_MW_01-06-2026.csv
+2026-09-24 09:09:34 INFO     __main__: Staged raw download for Jun2026 to run_data_malawi\landing\LMIS_MW_01-06-2026.csv
+2026-09-24 09:09:38 INFO     __main__: Parsed 6210 rows, 17 columns (incl. Period) from run_data_malawi\downloads\20260924T090929_lmis_summary_by_facility_reproductive_health_jun2026.xlsx
+2026-09-24 09:09:38 INFO     lmis_pipeline.extract: No existing master files at run_data_malawi\extracts\LMIS_MW.{xlsx,csv} - creating them fresh
+2026-09-24 09:09:41 INFO     lmis_pipeline.extract: Wrote 6210 total row(s) to run_data_malawi\extracts\LMIS_MW.xlsx and run_data_malawi\extracts\LMIS_MW_auto.csv
+2026-09-24 09:09:41 INFO     __main__: Upserted period Jun2026 into master files at (WindowsPath('run_data_malawi/extracts/LMIS_MW.xlsx'), WindowsPath('run_data_malawi/extracts/LMIS_MW_auto.csv'))
+2026-09-24 09:09:41 INFO     __main__: === Period: Jul2026 ===
+2026-09-24 09:09:41 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-09-24 09:09:41 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-09-24 09:09:41 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-09-24 09:09:41 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: Reproductive Health
+2026-09-24 09:09:44 INFO     lmis_pipeline.malawi_scraper: Selecting Period Name: Jul2026
+2026-09-24 09:09:44 INFO     lmis_pipeline.malawi_scraper: Selecting xlsx format
+2026-09-24 09:09:44 INFO     lmis_pipeline.malawi_scraper: Clicking Generate and waiting for the file
+2026-09-24 09:09:56 INFO     lmis_pipeline.malawi_scraper: Saved downloaded results to run_data_malawi\downloads\20260924T090956_lmis_summary_by_facility_reproductive_health_jul2026.xlsx
+2026-09-24 09:10:01 INFO     __main__: Staged raw download (as CSV) to run_data_malawi\landing\LMIS_MW_01-07-2026.csv
+2026-09-24 09:10:01 INFO     __main__: Staged raw download for Jul2026 to run_data_malawi\landing\LMIS_MW_01-07-2026.csv
+2026-09-24 09:10:05 INFO     __main__: Parsed 6790 rows, 17 columns (incl. Period) from run_data_malawi\downloads\20260924T090956_lmis_summary_by_facility_reproductive_health_jul2026.xlsx
+2026-09-24 09:10:07 INFO     lmis_pipeline.extract: Upsert: 6210 existing + 6790 new rows -> 13000 after dedup on ['Facility Code', 'Product Code', 'Period'] (0 row(s) updated in place)
+2026-09-24 09:10:12 INFO     lmis_pipeline.extract: Wrote 13000 total row(s) to run_data_malawi\extracts\LMIS_MW.xlsx and run_data_malawi\extracts\LMIS_MW_auto.csv
+2026-09-24 09:10:12 INFO     __main__: Upserted period Jul2026 into master files at (WindowsPath('run_data_malawi/extracts/LMIS_MW.xlsx'), WindowsPath('run_data_malawi/extracts/LMIS_MW_auto.csv'))
+2026-09-24 09:10:12 INFO     __main__: === Period: Aug2026 ===
+2026-09-24 09:10:12 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-09-24 09:10:12 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-09-24 09:10:12 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-09-24 09:10:13 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: Reproductive Health
+2026-09-24 09:10:15 INFO     lmis_pipeline.malawi_scraper: Selecting Period Name: Aug2026
+2026-09-24 09:10:16 INFO     lmis_pipeline.malawi_scraper: Selecting xlsx format
+2026-09-24 09:10:16 INFO     lmis_pipeline.malawi_scraper: Clicking Generate and waiting for the file
+2026-09-24 09:10:28 INFO     lmis_pipeline.malawi_scraper: Saved downloaded results to run_data_malawi\downloads\20260924T091028_lmis_summary_by_facility_reproductive_health_aug2026.xlsx
+2026-09-24 09:10:33 INFO     __main__: Staged raw download (as CSV) to run_data_malawi\landing\LMIS_MW_01-08-2026.csv
+2026-09-24 09:10:33 INFO     __main__: Staged raw download for Aug2026 to run_data_malawi\landing\LMIS_MW_01-08-2026.csv
+2026-09-24 09:10:37 INFO     __main__: Parsed 6890 rows, 17 columns (incl. Period) from run_data_malawi\downloads\20260924T091028_lmis_summary_by_facility_reproductive_health_aug2026.xlsx
+2026-09-24 09:10:41 INFO     lmis_pipeline.extract: Upsert: 13000 existing + 6890 new rows -> 19890 after dedup on ['Facility Code', 'Product Code', 'Period'] (0 row(s) updated in place)
+2026-09-24 09:10:48 INFO     lmis_pipeline.extract: Wrote 19890 total row(s) to run_data_malawi\extracts\LMIS_MW.xlsx and run_data_malawi\extracts\LMIS_MW_auto.csv
+2026-09-24 09:10:48 INFO     __main__: Upserted period Aug2026 into master files at (WindowsPath('run_data_malawi/extracts/LMIS_MW.xlsx'), WindowsPath('run_data_malawi/extracts/LMIS_MW_auto.csv'))

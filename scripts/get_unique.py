@@ -11,7 +11,7 @@ import pandas as pd
 
 def print_unique_column_values(
     file_path: str | Path = Path("./run_data/extracts"),
-    file_name: str = "lmis_mz_master.xlsx",
+    file_name: str = "LMIS_MW.xlsx",
     column_name: str = "Nome do produto",
     group_column: str | None = None,
 ) -> dict | list:
@@ -62,7 +62,7 @@ def print_unique_column_values(
 if __name__ == "__main__":
     print_unique_column_values(
         file_path=Path("./run_data_malawi/extracts"),
-        file_name="lmis_mw_master.xlsx",
+        file_name="LMIS_MW.xlsx",
         column_name="Product",
         group_column="Period",
     )
