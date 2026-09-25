@@ -49,7 +49,11 @@ def _reorder_columns(df: pd.DataFrame, excel_columns: list[str]) -> pd.DataFrame
 
 
 def _write_formatted_excel(
-    df: pd.DataFrame, path: Path, sheet_name: str, second_header: dict[str, str] | None = None
+    df: pd.DataFrame,
+    path: Path,
+    sheet_name: str,
+    second_header: dict[str, str] | None = None,
+    text_format_columns: list[str] | None = None,
 ) -> None:
     """Shared formatting: bold+frozen header row(s), auto-sized columns.
 
@@ -59,6 +63,17 @@ def _write_formatted_excel(
     Mozambique's dual English/Portuguese header requirement; None
     (default) writes a single header row exactly as before, which is what
     Malawi still uses.
+
+    text_format_columns, if given, forces every cell in those columns to
+    Excel's Text number format ("@"). Confirmed real-world problem this
+    solves: a plain string like "Jan-24" is written correctly as text, but
+    Excel's own auto-detection can still silently reinterpret it as a real
+    date on open (showing "Jan-24" on the surface, while the cell's actual
+    underlying value becomes a full date like "01/01/2024", visible in the
+    formula bar on click) - this is Excel's own behavior, not something
+    controllable from the data itself, EXCEPT by explicitly locking the
+    cell's format to Text, which this parameter does. Both country
+    pipelines apply this to their "Period" column.
     """
     if df.empty:
         log.warning("DataFrame is empty - writing a header-only workbook to %s", path)
@@ -80,6 +95,18 @@ def _write_formatted_excel(
             cell.font = cell.font.copy(bold=True)
         worksheet.freeze_panes = f"A{header_rows + 1}"
 
+        if text_format_columns:
+            text_col_indices = {
+                i for i, c in enumerate(df.columns, start=1) if c in text_format_columns
+            }
+            if text_col_indices:
+                for row in worksheet.iter_rows(
+                    min_row=header_rows + 1, max_row=worksheet.max_row
+                ):
+                    for cell in row:
+                        if cell.column in text_col_indices:
+                            cell.number_format = "@"
+
         for col_idx, column in enumerate(df.columns, start=1):
             lengths = [len(str(column))]
             if second_header:
@@ -92,7 +119,10 @@ def _write_formatted_excel(
 
 
 def upsert_to_excel_and_csv(
-    df_new: pd.DataFrame, cfg: Config, second_header: dict[str, str] | None = None
+    df_new: pd.DataFrame,
+    cfg: Config,
+    second_header: dict[str, str] | None = None,
+    text_format_columns: list[str] | None = None,
 ) -> tuple[Path, Path]:
     """Write df_new into persistent master files in BOTH .xlsx and .csv
     formats, updating existing rows in place (matched on config's
@@ -117,6 +147,14 @@ def upsert_to_excel_and_csv(
     header row exactly as before. When given, that second row is always
     skipped again when reading either file back in on a later run (so it
     never gets treated as a real data row and silently accumulated).
+
+    text_format_columns, if given, forces the .xlsx cells in those columns
+    to Excel's Text format, so Excel can't silently reinterpret a
+    date-like string (e.g. "Jan-24") as a real date on open - see
+    _write_formatted_excel()'s own docstring for the full explanation.
+    Only affects the .xlsx; CSV has no cell-format metadata at all, so
+    this can't be applied there - opening the CSV directly in Excel may
+    still show this same reinterpretation, unavoidably.
 
     The existing merged state is read from whichever of the two files
     exists (preferring .xlsx if both do, since read_excel's dtype
@@ -174,7 +212,10 @@ def upsert_to_excel_and_csv(
         log.info("No existing master files at %s.{xlsx,csv} - creating them fresh", out_dir / base_name)
 
     combined = _reorder_columns(combined, excel_columns)
-    _write_formatted_excel(combined, xlsx_path, sheet_name, second_header=second_header)
+    _write_formatted_excel(
+        combined, xlsx_path, sheet_name, second_header=second_header,
+        text_format_columns=text_format_columns,
+    )
     _write_csv_with_second_header(combined, csv_path, second_header=second_header)
     log.info("Wrote %d total row(s) to %s and %s", len(combined), xlsx_path, csv_path)
     return xlsx_path, csv_path

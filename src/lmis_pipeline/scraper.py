@@ -515,7 +515,7 @@ class LMISScraper(BaseScraper):
         self._wait_for_results_table()
 
         if self.cfg.get("filters.verify_applied", True):
-            applied_count = self._count_applied_product_filters()
+            applied_count = self._count_applied_filter_values("nome_do_produto")
             if applied_count != len(products):
                 self.dump_diagnostics("product_filter_verification_failed")
                 raise ScraperError(
@@ -530,20 +530,139 @@ class LMISScraper(BaseScraper):
                 )
             log.info("Verified %d product filter(s) actually applied", applied_count)
 
-    def _count_applied_product_filters(self) -> int:
-        """Count how many nome_do_produto values are actually present in the
-        embedded Metabase dashboard's own iframe URL - this is ground truth
-        for what's actually filtered (confirmed present in every successful
-        run's diagnostics so far), independent of whether our own click
-        sequence happened to raise an error or not. Used as a safety net
-        against a filter click sequence that completes without error but
-        didn't actually register any selections."""
+    def set_program_filter(self, program: str | None) -> None:
+        """Restrict the Requisition Data Report to a specific Programa
+        (e.g. "TARV" for HIV/ART data) via the dashboard's "Programa"
+        filter widget, then wait for the (re-filtered) results table
+        again. A no-op if program is falsy/None - the report's default
+        program scope (everything) is left as-is.
+
+        CONFIRMED via a real diagnostics capture: the "Programa" widget's
+        own label/trigger opens successfully by direct analogy with "Nome
+        do produto"'s pattern, but it is otherwise a DIFFERENT widget type,
+        not the same Mantine PillsInput+Combobox - it's a checkbox list.
+        Each option is a real <input type="checkbox"
+        data-testid="{value}-filter-value">, not a role="option" div (an
+        earlier version of this method assumed the latter and never found
+        a match). The search input happens to share the same placeholder
+        text as the product widget's, but has its own distinct
+        data-testid - see report.program_filter_search_input. The apply
+        button is confirmed to be the same aria-label="Add filter" button
+        used by the product filter.
+
+        Verification (filters.verify_applied) assumes the resulting
+        dashboard URL uses a "programa" query parameter, by analogy with
+        the confirmed "nome_do_produto" - not independently confirmed.
+        """
+        assert self.page is not None
+        if not program:
+            log.info("No program filter configured - leaving the report's default program scope as-is")
+            return
+
+        log.info("Opening the 'Programa' filter widget")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.program_filter_widget"), timeout_ms=15000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("program_filter_widget_not_found")
+            raise ScraperError(f"Could not open the program filter widget: {e}") from e
+
+        log.info("Selecting program: %s", program)
+        try:
+            search_input = self.first_match(
+                self.cfg.selectors("report.program_filter_search_input"), timeout_ms=10000
+            )
+            search_input.fill(program)
+            # checkbox list, not role="option" divs - see docstring above.
+            # CONFIRMED via a real diagnostics capture that this checkbox
+            # click can silently fail to register (no "checked" attribute
+            # afterward, matching widget's own "Add filter" button stayed
+            # disabled) - verify-and-retry rather than trust a single
+            # click, same defensive pattern used for Malawi's select2
+            # flakiness.
+            checkbox_selector = f'input[data-testid="{program}-filter-value"]'
+            checkbox = self.first_match(
+                [checkbox_selector, f'label:has-text("{program}")'], timeout_ms=10000
+            )
+            checked = False
+            for attempt in range(1, 4):
+                self._click(checkbox)
+                try:
+                    cb = self.first_match([checkbox_selector], timeout_ms=2000)
+                    if cb.is_checked():
+                        checked = True
+                        break
+                except ScraperError:
+                    pass
+                log.warning(
+                    "Checkbox for program %r did not register as checked "
+                    "(attempt %d/3) - retrying", program, attempt,
+                )
+            if not checked:
+                raise ScraperError(
+                    f"Checkbox for program {program!r} never registered as "
+                    f"checked after 3 attempts"
+                )
+        except ScraperError as e:
+            self.dump_diagnostics("program_filter_option_not_found")
+            raise ScraperError(
+                f"Could not find/select the program option {program!r}: {e}"
+            ) from e
+
+        log.info("Applying the program filter")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.product_filter_apply_button"), timeout_ms=10000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("program_filter_apply_button_not_found")
+            raise ScraperError(f"Could not find the program filter's apply button: {e}") from e
+
+        log.info("Clicking the dashboard-level Apply banner to commit the program filter change")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.dashboard_apply_button"), timeout_ms=10000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("dashboard_apply_button_not_found")
+            raise ScraperError(f"Could not find the dashboard-level Apply banner: {e}") from e
+
+        self._wait_networkidle()
+        self._wait_for_results_table()
+
+        if self.cfg.get("filters.verify_applied", True):
+            applied_count = self._count_applied_filter_values("programa")
+            if applied_count < 1:
+                self.dump_diagnostics("program_filter_verification_failed")
+                raise ScraperError(
+                    f"Program filter verification failed: requested "
+                    f"program {program!r} but the report's own embedded "
+                    f"dashboard URL shows no 'programa' value applied "
+                    f"(this parameter name is a guess, not confirmed - if "
+                    f"the URL uses a different name, this check will "
+                    f"always fail; check the diagnostics dump and either "
+                    f"fix the param name here or set "
+                    f"filters.verify_applied: false to disable this check)."
+                )
+            log.info("Verified program filter actually applied")
+
+    def _count_applied_filter_values(self, url_param_name: str) -> int:
+        """Count how many values for the given Metabase dashboard URL query
+        parameter are actually present in the embedded iframe's own URL -
+        this is ground truth for what's actually filtered (confirmed
+        present in every successful run's diagnostics so far, for
+        "nome_do_produto"), independent of whether our own click sequence
+        happened to raise an error or not. Used as a safety net against a
+        filter click sequence that completes without error but didn't
+        actually register any selection.
+        """
         assert self.page is not None
         for frame in self.page.frames:
-            if "nome_do_produto" in frame.url or "metabase" in frame.url.lower():
+            if url_param_name in frame.url or "metabase" in frame.url.lower():
                 parsed = urlparse(frame.url)
                 qs = parse_qs(parsed.query)
-                return len(qs.get("nome_do_produto", []))
+                return len(qs.get(url_param_name, []))
         return 0
 
     # ---------------------------------------------------------------- download

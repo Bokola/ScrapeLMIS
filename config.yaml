@@ -132,6 +132,30 @@ filters:
   output_period_count: 3
   output_period_offset: 1
 
+  # Optional: restrict the Requisition Data Report to a specific Programa
+  # (e.g. "TARV" for HIV/ART data) instead of the site's own default (all
+  # programs). None/empty (the default) leaves the report unfiltered by
+  # program, same as before this setting existed - the existing family-
+  # planning extraction (filters.products below) doesn't set this at all.
+  # Normally overridden per-run via `--program` rather than edited here
+  # directly, so the same config.yaml can drive both the family-planning
+  # extraction (product-filtered, no program filter) and an HIV/ART one
+  # (program-filtered, no product filter) - see main.py's --program and
+  # --master-basename CLI arguments.
+  program_name: null
+
+  # Optional: a master Product/Category list (columns: Product, Category)
+  # used ONLY when filters.program_name is set (a program-based, e.g.
+  # HIV/TARV, run) - restricts the extract to products fuzzy-matched
+  # against this list, and populates Product Short/Category for them. See
+  # main.py's match_product_category() for the approach and its accuracy
+  # caveats: SIMAM's raw HIV product names don't exactly match this list's
+  # naming convention (confirmed via real examples - Portuguese vs English
+  # spelling, "+" vs "/" separators), so this uses approximate
+  # ingredient-stem matching, not exact matching like filters.products
+  # below. Normally overridden per-run via `--product-category-file`.
+  product_category_file: "data/LMIS_HIV_category.xlsx"
+
   # Optional: restrict the Requisition Data Report to specific products via
   # its "Nome do produto" dashboard filter, instead of pulling every
   # product in the country. Leave empty (`products: []`) to skip filtering
@@ -320,6 +344,25 @@ selectors:
     product_filter_widget:
       - "div:text-is('Nome do produto')"
       - "text=Nome do produto"
+    # CONFIRMED (worked in a real run - the widget opened successfully):
+    # the "Programa" filter widget's own label/trigger, guessed by direct
+    # analogy with "Nome do produto"'s pattern above and turned out
+    # correct. Used by set_program_filter() for HIV/ART (TARV)
+    # extractions, which leave product_filter_widget untouched (product
+    # name stays at its default, unfiltered state).
+    program_filter_widget:
+      - "div:text-is('Programa')"
+      - "text=Programa"
+    # CONFIRMED markup (from a real diagnostics capture): the "Programa"
+    # widget is a DIFFERENT widget type from "Nome do produto" - not a
+    # Mantine PillsInput+Combobox, but a checkbox list. Its search input
+    # still happens to share the same placeholder text as the product
+    # widget's (which is why reusing that selector worked for opening/
+    # typing), but has its own distinct data-testid - listed first here
+    # for precision.
+    program_filter_search_input:
+      - "[data-testid='list-field']"
+      - "input[placeholder='Search the list']"
     # CONFIRMED markup (from a real diagnostics capture): this is a Mantine
     # PillsInput + Combobox widget, NOT a plain textarea - it's a
     # search-as-you-type field backed by a dropdown of options

@@ -9,7 +9,6 @@ Run with: uv run python -m lmis_pipeline.main [--baseline path/to/manual_downloa
 from __future__ import annotations
 
 import argparse
-import calendar
 import re
 import sys
 from pathlib import Path
@@ -21,6 +20,11 @@ from .extract import read_downloaded_file, upsert_to_excel_and_csv
 from .landing import stage_raw_download
 from .logger import enable_file_logging, get_logger
 from .periods import month_window
+from .product_matching import (
+    filter_to_known_products,
+    load_product_category_list,
+    match_product_category,
+)
 from .schema_validation import LMIS_REQUISITION_SCHEMA, validate_extract
 from .scraper import ScraperError, open_browser
 
@@ -151,13 +155,22 @@ def filter_to_period_window(
     return filtered
 
 
-def translate_and_enrich(df: pd.DataFrame) -> pd.DataFrame:
+def translate_and_enrich(
+    df: pd.DataFrame, product_category_list: list[tuple[str, str]] | None = None
+) -> pd.DataFrame:
     """Translate the raw report's Portuguese column headers to English and
     add four derived columns (Health Category, Product Short, Category,
     Date), matching the exact target format in LMIS_MZ.csv. Called after
     schema validation passes (validation checks the raw Portuguese
     columns - translating first would require duplicating the schema in
     two languages for no benefit).
+
+    product_category_list, if given, is used as a fuzzy-match fallback for
+    Product Short/Category when a product isn't in the exact-match
+    PRODUCT_NAME_TO_SHORT_AND_CATEGORY table above (e.g. HIV/TARV products,
+    which aren't in that table at all) - see match_product_category() and
+    its extensive caveats. Falls back further to (raw name, "") if neither
+    the exact table nor the fuzzy list produces a confident match.
     """
     df = df.copy()
 
@@ -165,27 +178,41 @@ def translate_and_enrich(df: pd.DataFrame) -> pd.DataFrame:
         lambda t: INSTALLATION_TYPE_TO_HEALTH_CATEGORY.get(str(t).strip(), DEFAULT_HEALTH_CATEGORY)
     )
 
-    product_lookup = df["Nome do produto"].map(
-        lambda name: PRODUCT_NAME_TO_SHORT_AND_CATEGORY.get(str(name).strip(), (str(name), ""))
-    )
+    match_cache: dict[str, tuple[str, str]] = {}
+
+    def _lookup(name: str) -> tuple[str, str]:
+        name = str(name).strip()
+        if name in match_cache:
+            return match_cache[name]
+        exact = PRODUCT_NAME_TO_SHORT_AND_CATEGORY.get(name)
+        if exact is not None:
+            match_cache[name] = exact
+            return exact
+        if product_category_list:
+            fuzzy = match_product_category(name, product_category_list)
+            if fuzzy is not None:
+                match_cache[name] = fuzzy
+                return fuzzy
+        result = (name, "")
+        match_cache[name] = result
+        return result
+
+    product_lookup = df["Nome do produto"].map(_lookup)
     df["Product Short"] = product_lookup.map(lambda t: t[0])
     df["Category"] = product_lookup.map(lambda t: t[1])
 
     parsed = df["Período de análise"].map(_parse_period_end_month)
-    # Date, not datetime, per explicit request - matching Malawi's own
-    # "01/mm/yyyy" Period format (day always "01", since these are monthly
-    # periods with no real day component). This deliberately overrides the
-    # "2024-09-01 00:00:00" datetime format originally confirmed against a
-    # real sample file - that format was correct at the time, but the
-    # format itself has since changed on request.
-    # "Mon-YY" per explicit request (e.g. "Jan-24") - confirmed against a
-    # real sample file (sample-LMIS_MZ.csv). This supersedes the earlier
-    # "01/mm/yyyy" format, which itself had superseded the original
-    # datetime format - each was correct when it was requested; only the
-    # format itself keeps changing.
-    df["Period"] = parsed.map(
-        lambda ym: f"{calendar.month_abbr[ym[1]]}-{str(ym[0])[-2:]}" if ym else ""
-    )
+    # "01/mm/yyyy" per explicit request (e.g. "01/06/2026"), matching
+    # Malawi's format exactly (day always "01" - these are monthly
+    # periods with no real day component). This format has changed
+    # several times on request (datetime -> "01/mm/yyyy" -> "Mon-YY" ->
+    # back to "01/mm/yyyy") - each was correct when requested. Note this
+    # is fully date-shaped, so Excel's own auto-date-detection can still
+    # silently reinterpret it when a .csv is opened directly (unavoidable
+    # for CSV, which has no cell-type metadata) - the .xlsx files are
+    # separately protected against this via an explicit Text cell format,
+    # see extract.py's text_format_columns.
+    df["Period"] = parsed.map(lambda ym: f"01/{ym[1]:02d}/{ym[0]}" if ym else "")
     df["Date"] = parsed.map(lambda ym: f"{_PT_MONTH_NUM_TO_EN[ym[1]]}-{ym[0]}" if ym else "")
 
     if "Período" in df.columns:
@@ -214,6 +241,7 @@ def run(cfg: Config, baseline_path: Path | None = None) -> tuple[Path, Path]:
         s.set_language_english()
         try:
             s.open_requisition_report()
+            s.set_program_filter(cfg.get("filters.program_name"))
             s.set_product_filter(cfg.get("filters.products", []))
             s.set_period_filter(cfg.get("filters.period_months"))
             downloaded_path = s.download_results_xlsx(download_dir)
@@ -239,9 +267,24 @@ def run(cfg: Config, baseline_path: Path | None = None) -> tuple[Path, Path]:
         n_months=cfg.get("filters.output_period_count", 4),
         offset_months=cfg.get("filters.output_period_offset", 0),
     )
-    df_translated = translate_and_enrich(df)
+
+    product_category_list: list[tuple[str, str]] | None = None
+    category_file = cfg.get("filters.product_category_file")
+    if category_file:
+        product_category_list = load_product_category_list(category_file)
+        log.info(
+            "Loaded %d product/category mapping(s) from %s",
+            len(product_category_list), category_file,
+        )
+        if cfg.get("filters.program_name"):
+            # Whitelist filter only applies to program-based (e.g. HIV/TARV)
+            # runs, where SIMAM's own product filter is deliberately left
+            # unfiltered - see filter_to_known_products()'s docstring.
+            df = filter_to_known_products(df, product_category_list)
+
+    df_translated = translate_and_enrich(df, product_category_list=product_category_list)
     xlsx_path, csv_path = upsert_to_excel_and_csv(
-        df_translated, cfg, second_header=SECOND_HEADER_ROW
+        df_translated, cfg, second_header=SECOND_HEADER_ROW, text_format_columns=["Period"]
     )
     log.info("Pipeline complete: master files at %s and %s", xlsx_path, csv_path)
 
@@ -278,6 +321,38 @@ def main() -> int:
         default=None,
         help="Path to a manually-downloaded baseline (.xlsx/.csv) to reconcile against",
     )
+    parser.add_argument(
+        "--program",
+        default=None,
+        help=(
+            "Filter to a specific Programa (e.g. TARV for HIV/ART data) instead of "
+            "the configured product list. Also clears filters.products for this run "
+            "(product name is left at its default, unfiltered state) - per the "
+            "explicit HIV extraction requirement, a program-based run doesn't also "
+            "filter by product. Overrides config.yaml's filters.program_name."
+        ),
+    )
+    parser.add_argument(
+        "--master-basename",
+        default=None,
+        help=(
+            "Override output.master_basename for this run (e.g. LMIS_MZ_HIV), so a "
+            "differently-filtered extraction (see --program) writes to its own "
+            "master files instead of the default LMIS_MZ.{xlsx,csv}."
+        ),
+    )
+    parser.add_argument(
+        "--product-category-file",
+        default=None,
+        type=Path,
+        help=(
+            "Override filters.product_category_file for this run - a master "
+            "Product/Category list (e.g. data/LMIS_HIV_category.xlsx) used to both "
+            "restrict a program-based run to known products and populate Product "
+            "Short/Category for them via fuzzy matching. See main.py's "
+            "match_product_category() for how, and its accuracy caveats."
+        ),
+    )
     args = parser.parse_args()
 
     try:
@@ -285,6 +360,18 @@ def main() -> int:
     except ConfigError as e:
         log.error("Config error: %s", e)
         return 1
+
+    if args.program:
+        cfg.data.setdefault("filters", {})["program_name"] = args.program
+        cfg.data["filters"]["products"] = []
+        log.info(
+            "--program %r given: filtering by Programa instead of product name "
+            "(product filter cleared for this run)", args.program,
+        )
+    if args.master_basename:
+        cfg.data.setdefault("output", {})["master_basename"] = args.master_basename
+    if args.product_category_file:
+        cfg.data.setdefault("filters", {})["product_category_file"] = str(args.product_category_file)
 
     log_path = enable_file_logging(cfg.get("output.log_dir", "./run_data/logs"))
     log.info("Logging this run to %s", log_path)

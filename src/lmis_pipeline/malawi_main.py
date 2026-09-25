@@ -22,6 +22,7 @@ from .extract import upsert_to_excel_and_csv
 from .logger import enable_file_logging, get_logger
 from .malawi_scraper import ScraperError, open_browser
 from .periods import month_abbr_period, month_window
+from .product_matching import filter_to_known_products, load_product_category_list, match_product_category
 from .schema_validation import MALAWI_SUMMARY_SCHEMA, validate_extract
 
 log = get_logger(__name__)
@@ -190,6 +191,15 @@ def run(cfg: Config) -> tuple[Path, Path]:
     download_dir = cfg.get("output.download_dir", "./run_data_malawi/downloads")
     result: tuple[Path, Path] | None = None
 
+    product_category_list = None
+    category_file = cfg.get("filters.product_category_file")
+    if category_file:
+        product_category_list = load_product_category_list(category_file)
+        log.info(
+            "Loaded %d product/category mapping(s) from %s",
+            len(product_category_list), category_file,
+        )
+
     with open_browser(cfg) as s:
         s.ensure_logged_in()
 
@@ -220,6 +230,18 @@ def run(cfg: Config) -> tuple[Path, Path]:
             df = read_malawi_report(downloaded_path, period)
             df = filter_products(df, cfg.get("filters.products", []))
 
+            if product_category_list:
+                # Master-list whitelist + Category, per explicit request -
+                # same mechanism as Mozambique's HIV extraction (see
+                # product_matching.py), reused here with Malawi's own
+                # "Product" column name. NOT yet validated against real
+                # Malawi HIV product naming - the matching approach was
+                # tuned against real Mozambique data only so far.
+                df = filter_to_known_products(df, product_category_list, product_column="Product")
+                df["Category"] = df["Product"].map(
+                    lambda name: (match_product_category(name, product_category_list) or (name, ""))[1]
+                )
+
             if cfg.get("excel_columns"):
                 # Only validate if a real schema/column list has been
                 # filled in for Malawi - see config_malawi.yaml's own note
@@ -234,7 +256,7 @@ def run(cfg: Config) -> tuple[Path, Path]:
                             f"{landing_path} for diagnosis."
                         )
 
-            result = upsert_to_excel_and_csv(df, cfg)
+            result = upsert_to_excel_and_csv(df, cfg, text_format_columns=["Period"])
             log.info("Upserted period %s into master files at %s", period, result)
 
     if result is None:
@@ -250,6 +272,37 @@ def run(cfg: Config) -> tuple[Path, Path]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run the Malawi LMIS pipeline")
     parser.add_argument("--config", default="config_malawi.yaml", type=Path)
+    parser.add_argument(
+        "--program",
+        default=None,
+        help=(
+            "Override filters.program_name for this run (e.g. HIV instead of the "
+            "default Reproductive Health). This is Malawi's core report parameter "
+            "(the Program Name select2), not a separate site-side filter like "
+            "Mozambique's - so overriding it needs no scraper changes."
+        ),
+    )
+    parser.add_argument(
+        "--master-basename",
+        default=None,
+        help=(
+            "Override output.master_basename for this run (e.g. LMIS_MW_HIV), so a "
+            "differently-filtered extraction (see --program) writes to its own "
+            "master files instead of the default LMIS_MW.{xlsx,csv}."
+        ),
+    )
+    parser.add_argument(
+        "--product-category-file",
+        default=None,
+        type=Path,
+        help=(
+            "Override filters.product_category_file for this run - a master "
+            "Product/Category list used to both restrict the extract to known "
+            "products and populate Category for them via fuzzy matching. See "
+            "product_matching.py for how, and its accuracy caveats - not yet "
+            "validated against real Malawi HIV product naming."
+        ),
+    )
     args = parser.parse_args()
 
     try:
@@ -257,6 +310,13 @@ def main() -> int:
     except ConfigError as e:
         log.error("Config error: %s", e)
         return 1
+
+    if args.program:
+        cfg.data.setdefault("filters", {})["program_name"] = args.program
+    if args.master_basename:
+        cfg.data.setdefault("output", {})["master_basename"] = args.master_basename
+    if args.product_category_file:
+        cfg.data.setdefault("filters", {})["product_category_file"] = str(args.product_category_file)
 
     log_path = enable_file_logging(cfg.get("output.log_dir", "./run_data_malawi/logs"))
     log.info("Logging this run to %s", log_path)
