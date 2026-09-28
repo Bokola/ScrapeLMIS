@@ -132,6 +132,36 @@ filters:
   output_period_count: 3
   output_period_offset: 1
 
+  # Historical backfill switch, per explicit request. When true, IGNORES
+  # period_months/output_period_count/output_period_offset above entirely
+  # and instead downloads historical_chunk_months at a time (via the
+  # period widget's separate "Fixed date range…" tab - CONFIRMED to exist
+  # alongside "Previous", you provided its markup directly), looping from
+  # historical_start to historical_end and landing/upserting each chunk
+  # before moving to the next. Writes to "<master_basename>_hist" instead
+  # of the normal master files.
+  #
+  # Each chunk is the same size/risk as a normal run - a normal 4-month
+  # HIV pull was already ~192k rows, so keeping chunks at 3 months stays
+  # comfortably clear of both ordinary timeouts and Excel's hard
+  # 1,048,576-row-per-sheet limit. A failed chunk is logged and skipped
+  # (same fault tolerance as Malawi's per-period loop) - already-succeeded
+  # chunks stay in the master file either way, so a partial run isn't
+  # wasted.
+  #
+  # NOT CONFIRMED: whether the "Fixed date range" widget's own date
+  # semantics align exactly with this project's "Período de análise"
+  # reporting-period cycle (21st of one month to 20th of the next) - each
+  # chunk's requested date range is padded generously on both sides to
+  # compensate (see periods.month_bounds_to_widget_dates), and the exact
+  # target months are still enforced by a client-side trim afterward
+  # (main.py's filter_to_absolute_period_range()) regardless of how the
+  # widget itself interprets the padded dates.
+  download_historical: true
+  historical_start: "01/01/2024"
+  historical_end: "01/05/2026"
+  historical_chunk_months: 3
+
   # Optional: restrict the Requisition Data Report to a specific Programa
   # (e.g. "TARV" for HIV/ART data) instead of the site's own default (all
   # programs). None/empty (the default) leaves the report unfiltered by
@@ -379,7 +409,16 @@ selectors:
     # any product has been picked yet.
     # CONFIRMED markup (you provided this): the "Período de análise" filter
     # widget's label/trigger in the dashboard's parameter bar.
+    # CONFIRMED markup (from a real diagnostics capture): the widget's own
+    # trigger button has a STATE-INDEPENDENT aria-label that stays
+    # "Período de análise" whether it currently has a value or not - used
+    # as the primary selector now, since the text-based ones below only
+    # match while a value is present ("Período de análise: <value>"); once
+    # cleared, the chip's text becomes just "Período de análise" with no
+    # colon at all, which broke reopening it after clearing (confirmed via
+    # a real run).
     period_filter_widget:
+      - "button[aria-label='Período de análise']"
       - "div:text-is('Período de análise:\u00a0')"
       - "text=Período de análise:"
     # CONFIRMED markup: the "Previous" tab within the opened widget -
@@ -405,6 +444,45 @@ selectors:
     # mechanism) - report.dashboard_apply_button is clicked afterward too.
     period_filter_update_button:
       - "button:has-text('Update filter')"
+    # CONFIRMED markup (real diagnostics dump proved this): "Fixed date
+    # range…" only appears in the FULL filter-type picker, which is a
+    # DIFFERENT view from what opening the widget shows while it already
+    # has a value (e.g. the default "previous 3 months") - that quick-edit
+    # view only offers Previous/Current/Next, confirmed absent from a real
+    # capture at that state. Reaching "Fixed date range" requires first
+    # clearing the current value (period_filter_close_button) then
+    # reopening period_filter_widget - see set_period_filter_fixed_range()
+    # in scraper.py.
+    # CONFIRMED markup (from a real diagnostics capture): the "Clear"
+    # control for THIS SPECIFIC filter lives inside its own
+    # <button aria-label="Período de análise">, alongside the identically-
+    # styled close icon that Programa (and every other filter chip) also
+    # has, inside ITS OWN button. An earlier unscoped version of this
+    # selector (svg.Icon-close / [aria-label='close icon']) matched
+    # whichever one came first in the DOM regardless of which filter it
+    # belonged to - confirmed via a real run to have grabbed Programa's
+    # instead, silently clearing the program filter. Scoping to inside
+    # this specific button fixes that. The actual clickable element is
+    # the wrapping <div role="button" aria-label="Clear">, not the bare
+    # <svg> inside it (also confirmed relevant: clicking an SVG directly
+    # can fail if it lacks a native .click() method - see
+    # scraper_base.py's _click()).
+    period_filter_close_button:
+      - "button[aria-label='Período de análise'] [aria-label='Clear']"
+    # CONFIRMED markup (you provided this): the "Fixed date range…" option
+    # within the period filter widget's full type picker (reached only
+    # after clearing+reopening, see above), and both its date inputs. The
+    # ellipsis in its text is a real Unicode character (…, U+2026), not
+    # three periods - matched primarily on the exact text with a plain
+    # substring fallback in case a future render drops it.
+    period_filter_fixed_range_tab:
+      - "span:text-is('Fixed date range…')"
+      - "text=Fixed date range"
+    period_filter_start_date_input:
+      - "input[aria-label='Start date']"
+    period_filter_end_date_input:
+      - "input[aria-label='End date']"
+    # CONFIRMED markup: the per-widget "Add filter" button that stages a
     # selection within the "Nome do produto" popover itself.
     product_filter_apply_button:
       - "button[aria-label='Add filter']"

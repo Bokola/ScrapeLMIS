@@ -19,7 +19,7 @@ from .config import Config, ConfigError
 from .extract import read_downloaded_file, upsert_to_excel_and_csv
 from .landing import stage_raw_download
 from .logger import enable_file_logging, get_logger
-from .periods import month_window
+from .periods import chunk_month_range, month_bounds_to_widget_dates, month_window, parse_ddmmyyyy_to_year_month
 from .product_matching import (
     filter_to_known_products,
     load_product_category_list,
@@ -121,6 +121,27 @@ def _parse_period_end_month(analysis_period: str) -> tuple[int, int] | None:
     if entry is None:
         return None
     return year, entry[0]
+
+
+def filter_to_absolute_period_range(
+    df: pd.DataFrame, start: tuple[int, int], end: tuple[int, int]
+) -> pd.DataFrame:
+    """Keep only rows whose "Período de análise" end-month falls within
+    [start, end] inclusive (fixed year/month bounds) - used for historical
+    backfill instead of filter_to_period_window()'s rolling window. Same
+    client-side-trim reasoning: SIMAM's period widget can only express a
+    trailing span ending at TODAY, never an arbitrary fixed past range, so
+    the site is asked for a single span wide enough to cover the whole
+    historical range and this narrows it down to exactly what's wanted.
+    """
+    parsed = df["Período de análise"].map(_parse_period_end_month)
+    before = len(df)
+    filtered = df[parsed.map(lambda ym: ym is not None and start <= ym <= end)].reset_index(drop=True)
+    log.info(
+        "Filtered to historical range %s to %s: %d row(s) -> %d row(s) kept",
+        start, end, before, len(filtered),
+    )
+    return filtered
 
 
 def filter_to_period_window(
@@ -233,40 +254,19 @@ def run(cfg: Config, baseline_path: Path | None = None) -> tuple[Path, Path]:
     validation failure (per config's validation.fail_on_error) - the raw
     landing capture is preserved either way, so nothing is lost even on a
     hard stop.
+
+    In historical mode (filters.download_historical), this loops over
+    several small chunks (each its own login-free browser session reusing
+    the existing storage state, own download, own upsert) instead of one
+    big pull - see set_period_filter_fixed_range()'s "Fixed date range"
+    tab, confirmed to exist alongside the regular "Previous" tab. Each
+    chunk is the same size/risk as a normal run; only the number of
+    chunks differs. A failed chunk is logged and skipped, same as
+    Malawi's own per-period fault tolerance - already-succeeded chunks
+    stay in the master file either way.
     """
     download_dir = cfg.get("output.download_dir", "./run_data/downloads")
-
-    with open_browser(cfg) as s:
-        s.ensure_logged_in()
-        s.set_language_english()
-        try:
-            s.open_requisition_report()
-            s.set_program_filter(cfg.get("filters.program_name"))
-            s.set_product_filter(cfg.get("filters.products", []))
-            s.set_period_filter(cfg.get("filters.period_months"))
-            downloaded_path = s.download_results_xlsx(download_dir)
-        except ScraperError as e:
-            raise PipelineError(f"Scraping the Requisition Data Report failed: {e}") from e
-
-    landing_path = stage_raw_download(downloaded_path, cfg)
-    log.info("Staged raw download to %s", landing_path)
-
-    df = read_downloaded_file(downloaded_path)
-
-    validation = validate_extract(df, schema=LMIS_REQUISITION_SCHEMA)
-    if not validation.ok:
-        log.warning(validation.summary())
-        if cfg.get("validation.fail_on_error", True):
-            raise PipelineError(
-                f"{validation.summary()} Raw payload preserved at "
-                f"{landing_path} for diagnosis - re-run against it once fixed."
-            )
-
-    df = filter_to_period_window(
-        df,
-        n_months=cfg.get("filters.output_period_count", 4),
-        offset_months=cfg.get("filters.output_period_offset", 0),
-    )
+    historical = cfg.get("filters.download_historical", False)
 
     product_category_list: list[tuple[str, str]] | None = None
     category_file = cfg.get("filters.product_category_file")
@@ -276,17 +276,134 @@ def run(cfg: Config, baseline_path: Path | None = None) -> tuple[Path, Path]:
             "Loaded %d product/category mapping(s) from %s",
             len(product_category_list), category_file,
         )
-        if cfg.get("filters.program_name"):
+
+    if historical:
+        start = parse_ddmmyyyy_to_year_month(cfg.get("filters.historical_start"))
+        end = parse_ddmmyyyy_to_year_month(cfg.get("filters.historical_end"))
+        chunk_months = cfg.get("filters.historical_chunk_months", 3)
+        chunks = chunk_month_range(start, end, chunk_size=chunk_months)
+        base_name = cfg.get("output.master_basename", "LMIS")
+        cfg.data.setdefault("output", {})["master_basename"] = f"{base_name}_hist"
+        log.info(
+            "HISTORICAL MODE: will download %d chunk(s) of up to %d "
+            "month(s) each, from %s to %s, writing to %s_hist",
+            len(chunks), chunk_months, cfg.get("filters.historical_start"),
+            cfg.get("filters.historical_end"), base_name,
+        )
+    else:
+        chunks = [None]  # single pass using the regular relative "Previous N months" filter
+
+    result: tuple[Path, Path] | None = None
+    last_df_raw: pd.DataFrame | None = None
+
+    for chunk in chunks:
+        with open_browser(cfg) as s:
+            s.ensure_logged_in()
+            s.set_language_english()
+            try:
+                s.open_requisition_report()
+                s.set_program_filter(cfg.get("filters.program_name"))
+                s.set_product_filter(cfg.get("filters.products", []))
+                if chunk is None:
+                    s.set_period_filter(cfg.get("filters.period_months"))
+                else:
+                    log.info("=== Historical chunk: %s to %s ===", chunk[0], chunk[1])
+                    widget_start, widget_end = month_bounds_to_widget_dates(*chunk)
+                    s.set_period_filter_fixed_range(widget_start, widget_end)
+                downloaded_path = s.download_results_xlsx(download_dir)
+            except ScraperError as e:
+                if chunk is None:
+                    raise PipelineError(f"Scraping the Requisition Data Report failed: {e}") from e
+                log.error(
+                    "Historical chunk %s to %s failed: %s - skipping this chunk",
+                    chunk[0], chunk[1], e,
+                )
+                continue
+
+        landing_path = stage_raw_download(downloaded_path, cfg)
+        log.info("Staged raw download to %s", landing_path)
+
+        df = read_downloaded_file(downloaded_path)
+
+        validation = validate_extract(df, schema=LMIS_REQUISITION_SCHEMA)
+        if not validation.ok:
+            log.warning(validation.summary())
+            if cfg.get("validation.fail_on_error", True):
+                if chunk is None:
+                    raise PipelineError(
+                        f"{validation.summary()} Raw payload preserved at "
+                        f"{landing_path} for diagnosis - re-run against it once fixed."
+                    )
+                log.error(
+                    "Historical chunk %s to %s failed validation - skipping "
+                    "this chunk (raw payload preserved at %s for diagnosis)",
+                    chunk[0], chunk[1], landing_path,
+                )
+                continue
+
+        if chunk is None:
+            df = filter_to_period_window(
+                df,
+                n_months=cfg.get("filters.output_period_count", 4),
+                offset_months=cfg.get("filters.output_period_offset", 0),
+            )
+        else:
+            df = filter_to_absolute_period_range(df, chunk[0], chunk[1])
+
+        if product_category_list and cfg.get("filters.program_name"):
             # Whitelist filter only applies to program-based (e.g. HIV/TARV)
             # runs, where SIMAM's own product filter is deliberately left
             # unfiltered - see filter_to_known_products()'s docstring.
             df = filter_to_known_products(df, product_category_list)
 
-    df_translated = translate_and_enrich(df, product_category_list=product_category_list)
-    xlsx_path, csv_path = upsert_to_excel_and_csv(
-        df_translated, cfg, second_header=SECOND_HEADER_ROW, text_format_columns=["Period"]
-    )
-    log.info("Pipeline complete: master files at %s and %s", xlsx_path, csv_path)
+        last_df_raw = df
+
+        df_translated = translate_and_enrich(df, product_category_list=product_category_list)
+        result = upsert_to_excel_and_csv(
+            df_translated, cfg, second_header=SECOND_HEADER_ROW, text_format_columns=["Period"],
+            # Historical mode skips the .xlsx write on every intermediate
+            # chunk (see upsert_to_excel_and_csv's own docstring for why -
+            # confirmed via direct measurement that rewriting an
+            # ever-growing multi-hundred-thousand-row .xlsx from scratch
+            # after EVERY chunk was the real cost behind an apparent
+            # "stuck" run, not a hang) - the .xlsx is instead generated
+            # once, after the loop, from the .csv (which every chunk DOES
+            # keep current). read_existing_from="csv" is required here for
+            # the same reason: preferring .xlsx (this function's normal
+            # default) would otherwise read a stale one and silently lose
+            # earlier chunks' data.
+            write_xlsx=(chunk is None), read_existing_from=("csv" if chunk is not None else "auto"),
+        )
+        if chunk is None:
+            log.info("Pipeline complete: master files at %s", result)
+        else:
+            log.info(
+                "Upserted historical chunk %s to %s into master files at %s",
+                chunk[0], chunk[1], result,
+            )
+
+    if result is None:
+        raise PipelineError(
+            "No chunk succeeded - master files were never written. See the "
+            "per-chunk errors above and the diagnostics dumps for details."
+        )
+
+    if historical:
+        # The loop above only ever wrote the .csv (write_xlsx=False on
+        # every chunk) - generate the real .xlsx exactly once here, from
+        # whatever ended up in the .csv (i.e. every chunk that succeeded,
+        # regardless of whether a LATER chunk then failed - the loop
+        # always reaches this point either way, since a failed chunk only
+        # `continue`s rather than aborting).
+        log.info("Generating the final .xlsx from the accumulated historical .csv")
+        result = upsert_to_excel_and_csv(
+            pd.DataFrame(columns=df_translated.columns), cfg,
+            second_header=SECOND_HEADER_ROW, text_format_columns=["Period"],
+            write_xlsx=True, read_existing_from="csv",
+        )
+        log.info("Historical .xlsx written at %s", result)
+
+    xlsx_path, csv_path = result
 
     if baseline_path is not None:
         from .reconciliation import load_baseline, reconcile, write_reconciliation_report
@@ -295,10 +412,12 @@ def run(cfg: Config, baseline_path: Path | None = None) -> tuple[Path, Path]:
         # df_translated - a manually downloaded baseline is a direct export
         # from SIMAM's own UI, so it's in the same raw Portuguese columns
         # config.yaml's reconciliation.kpi_columns/group_by already expect
-        # (e.g. "Stock teórico", "Província").
+        # (e.g. "Stock teórico", "Província"). In historical mode this is
+        # only the LAST chunk's data, since a baseline is inherently a
+        # single-period comparison.
         baseline_df = load_baseline(baseline_path)
         report = reconcile(
-            df,
+            last_df_raw,
             baseline_df,
             kpi_columns=cfg.get("reconciliation.kpi_columns", []),
             group_by=cfg.get("reconciliation.group_by"),
@@ -370,6 +489,14 @@ def main() -> int:
         )
     if args.master_basename:
         cfg.data.setdefault("output", {})["master_basename"] = args.master_basename
+    elif args.program:
+        # No explicit --master-basename given, but --program was - derive
+        # a sensible default automatically (e.g. "LMIS_MZ" + "TARV" ->
+        # "LMIS_MZ_TARV") rather than requiring the same information be
+        # typed twice. Still gets "_hist" appended automatically for a
+        # historical run, same as an explicitly-given basename would.
+        current_base = cfg.get("output.master_basename", "LMIS")
+        cfg.data.setdefault("output", {})["master_basename"] = f"{current_base}_{args.program.upper()}"
     if args.product_category_file:
         cfg.data.setdefault("filters", {})["product_category_file"] = str(args.product_category_file)
 

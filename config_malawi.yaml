@@ -105,6 +105,20 @@ filters:
   period_months: 3
   period_offset_months: 1
 
+  # Historical backfill switch, per explicit request. When true, IGNORES
+  # period_months/period_offset_months above entirely and instead
+  # generates every single month from historical_start to historical_end
+  # inclusive (e.g. 29 individual periods for 01/01/2024 to 01/05/2026),
+  # writing to "<master_basename>_hist" instead of the normal master
+  # files. Safe to do this way for Malawi specifically: the site takes an
+  # explicit period per report generation (unlike Mozambique's relative-
+  # only "Previous N months" widget), so each of the ~29 periods is its
+  # own small, independent download - no different in size/risk from a
+  # normal run, just many more of them.
+  download_historical: true
+  historical_start: "01/01/2024"
+  historical_end: "01/05/2026"
+
   # NOT CONFIRMED to exist as a site-side filter: unlike Mozambique's
   # "Nome do produto" widget, Malawi's "LMIS Summary by facility" report
   # form has no per-product filter field at all (only Program Name, Period

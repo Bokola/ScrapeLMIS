@@ -21,7 +21,7 @@ from .config import Config, ConfigError
 from .extract import upsert_to_excel_and_csv
 from .logger import enable_file_logging, get_logger
 from .malawi_scraper import ScraperError, open_browser
-from .periods import month_abbr_period, month_window
+from .periods import month_abbr_period, month_range, month_window, parse_ddmmyyyy_to_year_month
 from .product_matching import filter_to_known_products, load_product_category_list, match_product_category
 from .schema_validation import MALAWI_SUMMARY_SCHEMA, validate_extract
 
@@ -185,8 +185,31 @@ def run(cfg: Config) -> tuple[Path, Path]:
 
     n_months = cfg.get("filters.period_months", 4)
     offset_months = cfg.get("filters.period_offset_months", 0)
-    periods = recent_month_periods(n_months, offset=offset_months)
-    log.info("Will generate the report for %d period(s): %s", len(periods), periods)
+
+    if cfg.get("filters.download_historical", False):
+        # Historical backfill mode, per explicit request: a FIXED past
+        # range (e.g. Jan2024-May2026), not a rolling window relative to
+        # today. Safe to do exactly like the normal loop below, just with
+        # many more periods - each is still one small, independent
+        # download+upsert cycle (same size/risk as today's regular runs),
+        # so this doesn't introduce any new timeout risk the way
+        # Mozambique's single-large-download approach does (Malawi's site
+        # takes an explicit period per generation, unlike Mozambique's
+        # relative-only "Previous N months" widget).
+        start = parse_ddmmyyyy_to_year_month(cfg.get("filters.historical_start"))
+        end = parse_ddmmyyyy_to_year_month(cfg.get("filters.historical_end"))
+        periods = [month_abbr_period(y, m) for y, m in month_range(start, end)]
+        base_name = cfg.get("output.master_basename", "LMIS")
+        cfg.data.setdefault("output", {})["master_basename"] = f"{base_name}_hist"
+        log.info(
+            "HISTORICAL MODE: will generate the report for %d period(s) "
+            "from %s to %s, writing to %s_hist",
+            len(periods), cfg.get("filters.historical_start"),
+            cfg.get("filters.historical_end"), base_name,
+        )
+    else:
+        periods = recent_month_periods(n_months, offset=offset_months)
+        log.info("Will generate the report for %d period(s): %s", len(periods), periods)
 
     download_dir = cfg.get("output.download_dir", "./run_data_malawi/downloads")
     result: tuple[Path, Path] | None = None
@@ -311,10 +334,19 @@ def main() -> int:
         log.error("Config error: %s", e)
         return 1
 
-    if args.program:
-        cfg.data.setdefault("filters", {})["program_name"] = args.program
     if args.master_basename:
         cfg.data.setdefault("output", {})["master_basename"] = args.master_basename
+    elif args.program:
+        # No explicit --master-basename given, but --program was - derive
+        # a sensible default automatically (e.g. "LMIS_MW" + "HIV" ->
+        # "LMIS_MW_HIV") rather than requiring the same information be
+        # typed twice. Still gets "_hist" appended automatically for a
+        # historical run, same as an explicitly-given basename would.
+        current_base = cfg.get("output.master_basename", "LMIS")
+        cfg.data.setdefault("output", {})["master_basename"] = f"{current_base}_{args.program.upper()}"
+
+    if args.program:
+        cfg.data.setdefault("filters", {})["program_name"] = args.program
     if args.product_category_file:
         cfg.data.setdefault("filters", {})["product_category_file"] = str(args.product_category_file)
 

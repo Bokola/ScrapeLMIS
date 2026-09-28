@@ -26,7 +26,7 @@ see extract.py for that.
 """
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
@@ -52,6 +52,16 @@ from .scraper_base import (
 )
 
 log = get_logger(__name__)
+
+
+def _format_date_for_widget(d: date) -> str:
+    """Format a date matching the "Fixed date range" widget's own display
+    format, e.g. date(2026, 8, 26) -> "August 26, 2026". Built manually
+    rather than via strftime's day directive, which isn't portable
+    (%-d on Unix, %#d on Windows) - d.day is a plain int with no leading
+    zero on every platform.
+    """
+    return f"{d.strftime('%B')} {d.day}, {d.year}"
 
 
 class LMISScraper(BaseScraper):
@@ -386,6 +396,128 @@ class LMISScraper(BaseScraper):
         except ScraperError as e:
             self.dump_diagnostics("period_filter_update_button_not_found")
             raise ScraperError(f"Could not click Update filter: {e}") from e
+
+        log.info("Clicking the dashboard-level Apply banner to commit the period change")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.dashboard_apply_button"), timeout_ms=10000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("dashboard_apply_button_not_found")
+            raise ScraperError(
+                f"Could not find the dashboard-level Apply banner: {e}"
+            ) from e
+
+        self._wait_networkidle()
+        self._wait_for_results_table()
+
+    def set_period_filter_fixed_range(self, start_date: date, end_date: date) -> None:
+        """Restrict the Requisition Data Report's "Período de análise"
+        filter to a FIXED calendar date range (start_date to end_date
+        inclusive), via the widget's "Fixed date range…" option - used for
+        historical backfill, since set_period_filter()'s "Previous" tab
+        can only express a trailing span ending at TODAY, never an
+        arbitrary fixed past window.
+
+        CONFIRMED (via direct guidance, after a real diagnostics capture
+        showed "Fixed date range" absent entirely): the widget defaults to
+        an already-applied relative value (e.g. "previous 3 months"), and
+        opening it in that state only offers a quick-edit view (Previous/
+        Current/Next - confirmed absent of "Fixed date range" in a real
+        capture at exactly this state). Reaching the full type picker,
+        which does include "Fixed date range", requires first clearing
+        the current value (its close/x icon) and reopening the widget -
+        only then does this option appear. The date inputs' confirmed
+        value format is "Month D, YYYY" (e.g. "August 26, 2026"). NOT
+        CONFIRMED: whether typing directly into them reliably registers
+        the same way using the accompanying calendar popup would - if
+        this fails partway, the diagnostics dump will show what actually
+        happened.
+        """
+        assert self.page is not None
+
+        log.info("Opening the 'Período de análise' filter widget")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.period_filter_widget"), timeout_ms=15000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("period_filter_widget_not_found")
+            raise ScraperError(f"Could not open the period filter widget: {e}") from e
+
+        log.info("Clearing the period filter's current value")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.period_filter_close_button"), timeout_ms=10000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("period_filter_close_button_not_found")
+            raise ScraperError(
+                f"Could not clear the period filter's current value: {e}"
+            ) from e
+
+        # Real risk, not hypothetical: "Programa: TARV ✕" almost certainly
+        # uses this exact same generic close-icon SVG class, and
+        # first_match() has no way to know which one is intended - if it
+        # grabbed the WRONG one, the program filter would be silently
+        # cleared instead, with no error of any kind. Reusing the same
+        # "programa" URL-param check set_program_filter() already relies
+        # on, to catch this immediately rather than let a wrong-filter
+        # download happen silently.
+        if self.cfg.get("filters.program_name") and self.cfg.get("filters.verify_applied", True):
+            if self._count_applied_filter_values("programa") < 1:
+                self.dump_diagnostics("period_filter_close_button_cleared_wrong_filter")
+                raise ScraperError(
+                    "The program filter (Programa) appears to have been "
+                    "cleared - report.period_filter_close_button likely "
+                    "matched the WRONG close icon on the page (e.g. "
+                    "Programa's own, not Período de análise's). Check the "
+                    "diagnostics dump for the real DOM structure and scope "
+                    "this selector more precisely."
+                )
+
+        log.info("Reopening the 'Período de análise' filter widget")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.period_filter_widget"), timeout_ms=15000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("period_filter_widget_reopen_not_found")
+            raise ScraperError(f"Could not reopen the period filter widget: {e}") from e
+
+        log.info("Selecting the 'Fixed date range' option")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.period_filter_fixed_range_tab"), timeout_ms=10000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("period_filter_fixed_range_tab_not_found")
+            raise ScraperError(f"Could not select the 'Fixed date range' option: {e}") from e
+
+        start_str = _format_date_for_widget(start_date)
+        end_str = _format_date_for_widget(end_date)
+        log.info("Setting fixed date range: %s to %s", start_str, end_str)
+        try:
+            start_input = self.first_match(
+                self.cfg.selectors("report.period_filter_start_date_input"), timeout_ms=10000
+            )
+            start_input.fill(start_str)
+            end_input = self.first_match(
+                self.cfg.selectors("report.period_filter_end_date_input"), timeout_ms=10000
+            )
+            end_input.fill(end_str)
+        except ScraperError as e:
+            self.dump_diagnostics("period_filter_date_input_not_found")
+            raise ScraperError(f"Could not set the fixed date range inputs: {e}") from e
+
+        log.info("Applying the fixed date range (widget-level 'Add filter')")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.product_filter_apply_button"), timeout_ms=10000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("period_filter_add_filter_button_not_found")
+            raise ScraperError(f"Could not click 'Add filter': {e}") from e
 
         log.info("Clicking the dashboard-level Apply banner to commit the period change")
         try:
