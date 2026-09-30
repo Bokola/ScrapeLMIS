@@ -157,7 +157,7 @@ filters:
   # target months are still enforced by a client-side trim afterward
   # (main.py's filter_to_absolute_period_range()) regardless of how the
   # widget itself interprets the padded dates.
-  download_historical: true
+  download_historical: false
   historical_start: "01/01/2024"
   historical_end: "01/05/2026"
   historical_chunk_months: 3
