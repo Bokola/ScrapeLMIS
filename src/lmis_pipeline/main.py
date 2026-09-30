@@ -79,7 +79,10 @@ for _derived_col in ("Health Category", "Product Short", "Date", "Category"):
 
 # Health Category, derived from Tipo de instalação: everything is a
 # "Health Facility" except a warehouse ("DDM").
-INSTALLATION_TYPE_TO_HEALTH_CATEGORY = {"DDM": "Warehouse"}
+INSTALLATION_TYPE_TO_HEALTH_CATEGORY = {
+    "DDM": "Warehouse", "AI": "Warehouse", "DPM": "Warehouse",
+    "OUTROS": "Others",
+}
 DEFAULT_HEALTH_CATEGORY = "Health Facility"
 
 # Product Short / Category, derived from Nome do produto by exact match.

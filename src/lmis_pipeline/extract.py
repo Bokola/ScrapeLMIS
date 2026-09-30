@@ -24,12 +24,19 @@ def read_downloaded_file(path: str | Path, sheet_name: str | int = 0) -> pd.Data
     """Read the downloaded results file (.xlsx or .csv - SIMAM's menu
     offers both) into a DataFrame. Everything is read as string first, same
     as the landing-zone convention elsewhere in this style of pipeline -
-    typing/cleanup is schema_validation's job, not this step's."""
+    typing/cleanup is schema_validation's job, not this step's.
+
+    dtype=str is REQUIRED to actually do that, not just a nicety - without
+    it (a real bug this docstring's claim papered over), pandas' own type
+    inference kicks in and silently strips leading zeros from numeric-
+    looking columns like "Código da instalação" (e.g. "01040563" becomes
+    the integer 1040563). Confirmed via explicit request to restore this.
+    """
     path = Path(path)
     if path.suffix.lower() in (".xlsx", ".xls"):
-        df = pd.read_excel(path, sheet_name=sheet_name)
+        df = pd.read_excel(path, sheet_name=sheet_name, dtype=str)
     elif path.suffix.lower() == ".csv":
-        df = pd.read_csv(path)
+        df = pd.read_csv(path, dtype=str)
     else:
         raise ValueError(f"Unrecognized downloaded file extension: {path.suffix}")
     log.info("Read %d rows, %d columns from %s", len(df), len(df.columns), path)
@@ -208,15 +215,22 @@ def upsert_to_excel_and_csv(
     existing = None
     if read_existing_from not in ("auto", "xlsx", "csv"):
         raise ValueError(f"read_existing_from must be 'auto', 'xlsx', or 'csv', got {read_existing_from!r}")
+    # dtype=str on EVERY read here, xlsx included - a real bug this
+    # missed originally: without it, pandas' own type inference silently
+    # strips leading zeros from numeric-looking columns like "Código da
+    # instalação" every time an existing master file gets re-read to
+    # merge new data in, even after read_downloaded_file() (the fresh
+    # download's own read) was already fixed to do this - confirmed via
+    # explicit report that the fix wasn't holding on a second run.
     if read_existing_from == "csv":
         if csv_path.exists():
             existing = pd.read_csv(csv_path, dtype=str, skiprows=skip_second_row)
     elif read_existing_from == "xlsx":
         if xlsx_path.exists():
-            existing = pd.read_excel(xlsx_path, sheet_name=sheet_name, skiprows=skip_second_row)
-    else:  # "auto" - original, unchanged behavior
+            existing = pd.read_excel(xlsx_path, sheet_name=sheet_name, skiprows=skip_second_row, dtype=str)
+    else:  # "auto" - original, unchanged preference order
         if xlsx_path.exists():
-            existing = pd.read_excel(xlsx_path, sheet_name=sheet_name, skiprows=skip_second_row)
+            existing = pd.read_excel(xlsx_path, sheet_name=sheet_name, skiprows=skip_second_row, dtype=str)
         elif csv_path.exists():
             existing = pd.read_csv(csv_path, dtype=str, skiprows=skip_second_row)
 
@@ -378,7 +392,7 @@ def upsert_to_excel(df_new: pd.DataFrame, cfg: Config) -> Path:
     df_new = _reorder_columns(df_new, excel_columns)
 
     if master_path.exists():
-        existing = pd.read_excel(master_path, sheet_name=sheet_name)
+        existing = pd.read_excel(master_path, sheet_name=sheet_name, dtype=str)
         existing = _reorder_columns(existing, excel_columns)
 
         key_cols_present = (
