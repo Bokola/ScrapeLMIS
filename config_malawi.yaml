@@ -73,8 +73,22 @@ reconciliation:
 
 filters:
   # CONFIRMED value (you specified this): the exact Program Name option to
-  # select on every run.
+  # select on every run. Normally overridden per-run via `--program` (e.g.
+  # to "HIV") rather than edited here directly, alongside
+  # `--product-category-file` and `--master-basename` - see main() in
+  # malawi_main.py.
   program_name: "Reproductive Health"
+
+  # Optional: a master Product/Category list (columns: Product, Category) -
+  # used ONLY when set (e.g. for an HIV run via --product-category-file) -
+  # restricts the extract to products fuzzy-matched against this list, and
+  # populates Category for them. See product_matching.py for the approach
+  # and its accuracy caveats - built and verified against Mozambique's HIV
+  # product naming, NOT yet validated against Malawi's own. None/null (the
+  # default) leaves the extract completely unfiltered by product, same as
+  # before this setting existed - the default Reproductive Health
+  # extraction doesn't set this at all.
+  product_category_file: null
 
   # How many months to pull, and how far back the window ENDS from the
   # current month (period_offset_months) - e.g. period_months=3,
@@ -90,6 +104,20 @@ filters:
   # period is requested from the site directly.
   period_months: 3
   period_offset_months: 1
+
+  # Historical backfill switch, per explicit request. When true, IGNORES
+  # period_months/period_offset_months above entirely and instead
+  # generates every single month from historical_start to historical_end
+  # inclusive (e.g. 29 individual periods for 01/01/2024 to 01/05/2026),
+  # writing to "<master_basename>_hist" instead of the normal master
+  # files. Safe to do this way for Malawi specifically: the site takes an
+  # explicit period per report generation (unlike Mozambique's relative-
+  # only "Previous N months" widget), so each of the ~29 periods is its
+  # own small, independent download - no different in size/risk from a
+  # normal run, just many more of them.
+  download_historical: true
+  historical_start: "01/01/2024"
+  historical_end: "01/05/2026"
 
   # NOT CONFIRMED to exist as a site-side filter: unlike Mozambique's
   # "Nome do produto" widget, Malawi's "LMIS Summary by facility" report
@@ -209,6 +237,7 @@ excel_columns:
   - "Facility Operator"
   - "Product Code"
   - "Product"
+  - "Category"
   - "Unit of Issue"
   - "Quantity Received"
   - "Quantity Issued"

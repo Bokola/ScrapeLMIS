@@ -190,8 +190,32 @@ class BaseScraper:
         uniformly across every country's scraper for consistency, even
         where it hasn't been proven necessary (e.g. Malawi) - it's a
         strict improvement over a coordinate-based click with no known
-        downside for a normal, unobstructed element."""
-        locator.evaluate("el => el.click()")
+        downside for a normal, unobstructed element.
+
+        CONFIRMED via a real uncaught-exception crash: an SVG element
+        (e.g. a bare <svg class="Icon-close">, matched directly rather
+        than a wrapping <button>) doesn't reliably have a native .click()
+        method the way an HTMLElement does - calling el.click() on one can
+        throw "el.click is not a function" inside the page, which is a raw
+        Playwright/JS error, not a ScraperError, so it was propagating
+        straight past every one of this project's `except ScraperError`
+        blocks as an uncaught exception. Both problems are fixed here:
+        falling back to Playwright's own click() (which handles this
+        correctly, via a real mouse event) if the native approach fails,
+        and wrapping the whole thing so ANY failure becomes a ScraperError
+        the caller's existing try/except can actually catch and diagnose,
+        instead of crashing the whole run uncaught.
+        """
+        try:
+            locator.evaluate("el => el.click()")
+        except Exception as e:
+            try:
+                locator.click(timeout=5000)
+            except Exception as e2:
+                raise ScraperError(
+                    f"Could not click element: native el.click() failed "
+                    f"({e}), and Playwright's own click() also failed ({e2})"
+                ) from e2
 
     def dump_diagnostics(self, tag: str) -> None:
         """On a selector failure: save a screenshot and dump the HTML of

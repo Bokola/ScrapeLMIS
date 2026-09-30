@@ -3,7 +3,7 @@ compute which reporting periods to pull."""
 from __future__ import annotations
 
 import calendar
-from datetime import date
+from datetime import date, timedelta
 
 
 def month_window(
@@ -38,6 +38,75 @@ def month_window(
             month = 12
             year -= 1
     return list(reversed(months))
+
+
+def month_range(start: tuple[int, int], end: tuple[int, int]) -> list[tuple[int, int]]:
+    """Return every (year, month) tuple from start to end inclusive, oldest
+    first - e.g. start=(2024,1), end=(2024,3) ->
+    [(2024,1), (2024,2), (2024,3)]. Used for a fixed historical backfill
+    range, as opposed to month_window()'s rolling window relative to
+    today.
+    """
+    (start_year, start_month), (end_year, end_month) = start, end
+    months: list[tuple[int, int]] = []
+    year, month = start_year, start_month
+    while (year, month) <= (end_year, end_month):
+        months.append((year, month))
+        month += 1
+        if month == 13:
+            month = 1
+            year += 1
+    return months
+
+
+def parse_ddmmyyyy_to_year_month(s: str) -> tuple[int, int]:
+    """Parse a 'DD/MM/YYYY' date string (matching this project's own
+    Period output format) into (year, month) - the day is ignored, since
+    every period this project deals with is month-level."""
+    day, month, year = s.strip().split("/")
+    return int(year), int(month)
+
+
+def chunk_month_range(
+    start: tuple[int, int], end: tuple[int, int], chunk_size: int = 3
+) -> list[tuple[tuple[int, int], tuple[int, int]]]:
+    """Split [start, end] (inclusive) into consecutive chunks of at most
+    chunk_size months each, e.g. start=(2024,1), end=(2024,7),
+    chunk_size=3 -> [((2024,1),(2024,3)), ((2024,4),(2024,6)),
+    ((2024,7),(2024,7))] - the last chunk is shorter if the range doesn't
+    divide evenly. Used for historical backfills that need to stay within
+    a safe per-download size (e.g. Mozambique's chunked 3-month fixed-date-
+    range downloads).
+    """
+    months = month_range(start, end)
+    return [
+        (chunk[0], chunk[-1])
+        for chunk in (months[i : i + chunk_size] for i in range(0, len(months), chunk_size))
+    ]
+
+
+def month_bounds_to_widget_dates(
+    start: tuple[int, int], end: tuple[int, int], pad_days: int = 25
+) -> tuple[date, date]:
+    """Compute a calendar date range covering [start, end] (inclusive
+    (year, month) bounds), padded by pad_days on each side, for use with a
+    "fixed date range" style widget that takes actual calendar dates
+    rather than year/month.
+
+    The padding exists because it's NOT CONFIRMED whether such a widget's
+    date semantics align exactly with this project's own "Período de
+    análise" reporting-period cycle (which spans the 21st of one month to
+    the 20th of the next, per confirmed real data) - padding generously on
+    both sides guarantees every relevant reporting period is captured
+    regardless, since a client-side trim (e.g.
+    main.py's filter_to_absolute_period_range()) is relied on afterward to
+    cut back down to exactly [start, end] - this function only needs to
+    err toward "too wide", never "too narrow".
+    """
+    start_date = date(start[0], start[1], 1) - timedelta(days=pad_days)
+    last_day = calendar.monthrange(end[0], end[1])[1]
+    end_date = date(end[0], end[1], last_day) + timedelta(days=pad_days)
+    return start_date, end_date
 
 
 def month_abbr_period(year: int, month: int) -> str:

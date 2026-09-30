@@ -3,3 +3,5 @@ run_data/
 .venv/
 __pycache__/
 *.pyc
+*.csv
+*.xlsx

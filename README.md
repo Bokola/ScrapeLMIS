@@ -55,6 +55,10 @@ cp .env.example .env
 ```bash
 # Full pipeline - .env is picked up automatically
 uv run python -m lmis_pipeline.main
+uv run python -m lmis_pipeline.malawi_main
+# HIV
+uv run python -m lmis_pipeline.main --program TARV --product-category-file data/LMIS_HIV_category.xlsx
+uv run python -m lmis_pipeline.malawi_main --program HIV --product-category-file data/LMIS_HIV_category.xlsx
 
 # Reconcile against a manually-downloaded baseline file
 uv run python -m lmis_pipeline.main --baseline path/to/manual_download.xlsx

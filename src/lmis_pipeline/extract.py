@@ -49,7 +49,11 @@ def _reorder_columns(df: pd.DataFrame, excel_columns: list[str]) -> pd.DataFrame
 
 
 def _write_formatted_excel(
-    df: pd.DataFrame, path: Path, sheet_name: str, second_header: dict[str, str] | None = None
+    df: pd.DataFrame,
+    path: Path,
+    sheet_name: str,
+    second_header: dict[str, str] | None = None,
+    text_format_columns: list[str] | None = None,
 ) -> None:
     """Shared formatting: bold+frozen header row(s), auto-sized columns.
 
@@ -59,6 +63,17 @@ def _write_formatted_excel(
     Mozambique's dual English/Portuguese header requirement; None
     (default) writes a single header row exactly as before, which is what
     Malawi still uses.
+
+    text_format_columns, if given, forces every cell in those columns to
+    Excel's Text number format ("@"). Confirmed real-world problem this
+    solves: a plain string like "Jan-24" is written correctly as text, but
+    Excel's own auto-detection can still silently reinterpret it as a real
+    date on open (showing "Jan-24" on the surface, while the cell's actual
+    underlying value becomes a full date like "01/01/2024", visible in the
+    formula bar on click) - this is Excel's own behavior, not something
+    controllable from the data itself, EXCEPT by explicitly locking the
+    cell's format to Text, which this parameter does. Both country
+    pipelines apply this to their "Period" column.
     """
     if df.empty:
         log.warning("DataFrame is empty - writing a header-only workbook to %s", path)
@@ -80,6 +95,25 @@ def _write_formatted_excel(
             cell.font = cell.font.copy(bold=True)
         worksheet.freeze_panes = f"A{header_rows + 1}"
 
+        if text_format_columns:
+            text_col_indices = [
+                i for i, c in enumerate(df.columns, start=1) if c in text_format_columns
+            ]
+            # Scoped directly to each target column (min_col=max_col=idx)
+            # rather than iterating every column and checking membership
+            # per cell - confirmed to matter a lot at scale: a ~400k-row
+            # historical master file was creating/checking ~9 million cell
+            # objects (every column x every row) to format just one column,
+            # making this step slow enough to look like a hang. This does
+            # the same work in roughly 1/N the cell accesses, N = column
+            # count.
+            for col_idx in text_col_indices:
+                for (cell,) in worksheet.iter_rows(
+                    min_row=header_rows + 1, max_row=worksheet.max_row,
+                    min_col=col_idx, max_col=col_idx,
+                ):
+                    cell.number_format = "@"
+
         for col_idx, column in enumerate(df.columns, start=1):
             lengths = [len(str(column))]
             if second_header:
@@ -92,7 +126,12 @@ def _write_formatted_excel(
 
 
 def upsert_to_excel_and_csv(
-    df_new: pd.DataFrame, cfg: Config, second_header: dict[str, str] | None = None
+    df_new: pd.DataFrame,
+    cfg: Config,
+    second_header: dict[str, str] | None = None,
+    text_format_columns: list[str] | None = None,
+    write_xlsx: bool = True,
+    read_existing_from: str = "auto",
 ) -> tuple[Path, Path]:
     """Write df_new into persistent master files in BOTH .xlsx and .csv
     formats, updating existing rows in place (matched on config's
@@ -103,7 +142,9 @@ def upsert_to_excel_and_csv(
     independently - independent upserts could let the two files silently
     drift apart over time (e.g. if one write step failed but not the
     other, or if they were run at different times against different
-    versions of the code).
+    versions of the code). write_xlsx=False (see below) is the one
+    deliberate exception to this, made for a concrete, measured reason -
+    the .csv is still always written.
 
     File names come from config's output.master_basename (e.g. "LMIS_MZ",
     "LMIS_MW") with .xlsx/.csv appended, per explicit request - not
@@ -118,11 +159,37 @@ def upsert_to_excel_and_csv(
     skipped again when reading either file back in on a later run (so it
     never gets treated as a real data row and silently accumulated).
 
-    The existing merged state is read from whichever of the two files
-    exists (preferring .xlsx if both do, since read_excel's dtype
-    handling is a bit more precise than a round-tripped CSV) - if only one
-    exists (e.g. a master file from before this dual-format convention),
-    that one is used and both are (re)written from here on.
+    text_format_columns, if given, forces the .xlsx cells in those columns
+    to Excel's Text format, so Excel can't silently reinterpret a
+    date-like string (e.g. "Jan-24") as a real date on open - see
+    _write_formatted_excel()'s own docstring for the full explanation.
+    Only affects the .xlsx; CSV has no cell-format metadata at all, so
+    this can't be applied there - opening the CSV directly in Excel may
+    still show this same reinterpretation, unavoidably.
+
+    write_xlsx=False skips the .xlsx write for this call (the .csv is
+    still always written). CONFIRMED to matter a lot at scale, via direct
+    measurement: writing a ~400k-row .xlsx via openpyxl took ~112s (an
+    equivalent .csv took ~2s), and a historical backfill upserts after
+    EVERY chunk - rewriting the full, ever-growing .xlsx from scratch on
+    every one of e.g. 10 chunks costs far more total time than writing it
+    once at the end (chunk N's rewrite alone, at the final size, already
+    costs as much as writing the whole thing once). Callers doing this
+    (main.py's historical mode) pass write_xlsx=False for every
+    intermediate chunk and write_xlsx=True exactly once at the end, so the
+    .xlsx still always reflects the true final state, just without being
+    regenerated after every intermediate step.
+
+    read_existing_from controls where the CURRENT merged state is read
+    from before merging in df_new: "auto" (default) prefers .xlsx if both
+    exist (read_excel's dtype handling is a bit more precise than a
+    round-tripped .csv) - unchanged from this function's original
+    behavior, safe for every caller that doesn't pass write_xlsx=False.
+    "csv" forces reading the .csv instead, REQUIRED whenever write_xlsx
+    may have been False on a previous call this run (otherwise a stale
+    .xlsx would be read, silently losing whatever was written .csv-only
+    since). "xlsx" forces reading the .xlsx instead (rarely useful
+    directly, included for symmetry).
     """
     out_dir = Path(cfg.get("output.dir", "./run_data/extracts"))
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -139,10 +206,19 @@ def upsert_to_excel_and_csv(
     skip_second_row = [1] if second_header else None
 
     existing = None
-    if xlsx_path.exists():
-        existing = pd.read_excel(xlsx_path, sheet_name=sheet_name, skiprows=skip_second_row)
-    elif csv_path.exists():
-        existing = pd.read_csv(csv_path, dtype=str, skiprows=skip_second_row)
+    if read_existing_from not in ("auto", "xlsx", "csv"):
+        raise ValueError(f"read_existing_from must be 'auto', 'xlsx', or 'csv', got {read_existing_from!r}")
+    if read_existing_from == "csv":
+        if csv_path.exists():
+            existing = pd.read_csv(csv_path, dtype=str, skiprows=skip_second_row)
+    elif read_existing_from == "xlsx":
+        if xlsx_path.exists():
+            existing = pd.read_excel(xlsx_path, sheet_name=sheet_name, skiprows=skip_second_row)
+    else:  # "auto" - original, unchanged behavior
+        if xlsx_path.exists():
+            existing = pd.read_excel(xlsx_path, sheet_name=sheet_name, skiprows=skip_second_row)
+        elif csv_path.exists():
+            existing = pd.read_csv(csv_path, dtype=str, skiprows=skip_second_row)
 
     if existing is not None:
         existing = _reorder_columns(existing, excel_columns)
@@ -174,9 +250,34 @@ def upsert_to_excel_and_csv(
         log.info("No existing master files at %s.{xlsx,csv} - creating them fresh", out_dir / base_name)
 
     combined = _reorder_columns(combined, excel_columns)
-    _write_formatted_excel(combined, xlsx_path, sheet_name, second_header=second_header)
+    if write_xlsx and len(combined) > 900_000:
+        # Safety margin below Excel's HARD 1,048,576-row-per-sheet limit -
+        # a loud warning here beats a silently truncated/corrupted .xlsx.
+        # Most likely to matter for a historical backfill's master file
+        # (which grows with every chunk upserted into it), but applies
+        # generally to any sufficiently large master file.
+        log.warning(
+            "Master file %s has %d rows - approaching Excel's hard "
+            "1,048,576-row-per-sheet limit. The .xlsx write may truncate "
+            "or fail if this grows further.",
+            xlsx_path, len(combined),
+        )
+    if write_xlsx:
+        _write_formatted_excel(
+            combined, xlsx_path, sheet_name, second_header=second_header,
+            text_format_columns=text_format_columns,
+        )
+    else:
+        log.info(
+            "Skipping .xlsx write for this call (write_xlsx=False) - only "
+            "%s is updated; the .xlsx will be regenerated from it later",
+            csv_path,
+        )
     _write_csv_with_second_header(combined, csv_path, second_header=second_header)
-    log.info("Wrote %d total row(s) to %s and %s", len(combined), xlsx_path, csv_path)
+    log.info(
+        "Wrote %d total row(s) to %s%s", len(combined), csv_path,
+        f" and {xlsx_path}" if write_xlsx else " (xlsx skipped this call)",
+    )
     return xlsx_path, csv_path
 
 

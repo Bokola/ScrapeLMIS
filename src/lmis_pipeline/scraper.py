@@ -26,7 +26,7 @@ see extract.py for that.
 """
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
@@ -52,6 +52,16 @@ from .scraper_base import (
 )
 
 log = get_logger(__name__)
+
+
+def _format_date_for_widget(d: date) -> str:
+    """Format a date matching the "Fixed date range" widget's own display
+    format, e.g. date(2026, 8, 26) -> "August 26, 2026". Built manually
+    rather than via strftime's day directive, which isn't portable
+    (%-d on Unix, %#d on Windows) - d.day is a plain int with no leading
+    zero on every platform.
+    """
+    return f"{d.strftime('%B')} {d.day}, {d.year}"
 
 
 class LMISScraper(BaseScraper):
@@ -401,6 +411,128 @@ class LMISScraper(BaseScraper):
         self._wait_networkidle()
         self._wait_for_results_table()
 
+    def set_period_filter_fixed_range(self, start_date: date, end_date: date) -> None:
+        """Restrict the Requisition Data Report's "Período de análise"
+        filter to a FIXED calendar date range (start_date to end_date
+        inclusive), via the widget's "Fixed date range…" option - used for
+        historical backfill, since set_period_filter()'s "Previous" tab
+        can only express a trailing span ending at TODAY, never an
+        arbitrary fixed past window.
+
+        CONFIRMED (via direct guidance, after a real diagnostics capture
+        showed "Fixed date range" absent entirely): the widget defaults to
+        an already-applied relative value (e.g. "previous 3 months"), and
+        opening it in that state only offers a quick-edit view (Previous/
+        Current/Next - confirmed absent of "Fixed date range" in a real
+        capture at exactly this state). Reaching the full type picker,
+        which does include "Fixed date range", requires first clearing
+        the current value (its close/x icon) and reopening the widget -
+        only then does this option appear. The date inputs' confirmed
+        value format is "Month D, YYYY" (e.g. "August 26, 2026"). NOT
+        CONFIRMED: whether typing directly into them reliably registers
+        the same way using the accompanying calendar popup would - if
+        this fails partway, the diagnostics dump will show what actually
+        happened.
+        """
+        assert self.page is not None
+
+        log.info("Opening the 'Período de análise' filter widget")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.period_filter_widget"), timeout_ms=15000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("period_filter_widget_not_found")
+            raise ScraperError(f"Could not open the period filter widget: {e}") from e
+
+        log.info("Clearing the period filter's current value")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.period_filter_close_button"), timeout_ms=10000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("period_filter_close_button_not_found")
+            raise ScraperError(
+                f"Could not clear the period filter's current value: {e}"
+            ) from e
+
+        # Real risk, not hypothetical: "Programa: TARV ✕" almost certainly
+        # uses this exact same generic close-icon SVG class, and
+        # first_match() has no way to know which one is intended - if it
+        # grabbed the WRONG one, the program filter would be silently
+        # cleared instead, with no error of any kind. Reusing the same
+        # "programa" URL-param check set_program_filter() already relies
+        # on, to catch this immediately rather than let a wrong-filter
+        # download happen silently.
+        if self.cfg.get("filters.program_name") and self.cfg.get("filters.verify_applied", True):
+            if self._count_applied_filter_values("programa") < 1:
+                self.dump_diagnostics("period_filter_close_button_cleared_wrong_filter")
+                raise ScraperError(
+                    "The program filter (Programa) appears to have been "
+                    "cleared - report.period_filter_close_button likely "
+                    "matched the WRONG close icon on the page (e.g. "
+                    "Programa's own, not Período de análise's). Check the "
+                    "diagnostics dump for the real DOM structure and scope "
+                    "this selector more precisely."
+                )
+
+        log.info("Reopening the 'Período de análise' filter widget")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.period_filter_widget"), timeout_ms=15000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("period_filter_widget_reopen_not_found")
+            raise ScraperError(f"Could not reopen the period filter widget: {e}") from e
+
+        log.info("Selecting the 'Fixed date range' option")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.period_filter_fixed_range_tab"), timeout_ms=10000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("period_filter_fixed_range_tab_not_found")
+            raise ScraperError(f"Could not select the 'Fixed date range' option: {e}") from e
+
+        start_str = _format_date_for_widget(start_date)
+        end_str = _format_date_for_widget(end_date)
+        log.info("Setting fixed date range: %s to %s", start_str, end_str)
+        try:
+            start_input = self.first_match(
+                self.cfg.selectors("report.period_filter_start_date_input"), timeout_ms=10000
+            )
+            start_input.fill(start_str)
+            end_input = self.first_match(
+                self.cfg.selectors("report.period_filter_end_date_input"), timeout_ms=10000
+            )
+            end_input.fill(end_str)
+        except ScraperError as e:
+            self.dump_diagnostics("period_filter_date_input_not_found")
+            raise ScraperError(f"Could not set the fixed date range inputs: {e}") from e
+
+        log.info("Applying the fixed date range (widget-level 'Add filter')")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.product_filter_apply_button"), timeout_ms=10000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("period_filter_add_filter_button_not_found")
+            raise ScraperError(f"Could not click 'Add filter': {e}") from e
+
+        log.info("Clicking the dashboard-level Apply banner to commit the period change")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.dashboard_apply_button"), timeout_ms=10000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("dashboard_apply_button_not_found")
+            raise ScraperError(
+                f"Could not find the dashboard-level Apply banner: {e}"
+            ) from e
+
+        self._wait_networkidle()
+        self._wait_for_results_table()
+
     def set_product_filter(self, products: list[str]) -> None:
         """Restrict the Requisition Data Report to specific products via its
         "Nome do produto" dashboard filter widget, then wait for the
@@ -515,7 +647,7 @@ class LMISScraper(BaseScraper):
         self._wait_for_results_table()
 
         if self.cfg.get("filters.verify_applied", True):
-            applied_count = self._count_applied_product_filters()
+            applied_count = self._count_applied_filter_values("nome_do_produto")
             if applied_count != len(products):
                 self.dump_diagnostics("product_filter_verification_failed")
                 raise ScraperError(
@@ -530,20 +662,139 @@ class LMISScraper(BaseScraper):
                 )
             log.info("Verified %d product filter(s) actually applied", applied_count)
 
-    def _count_applied_product_filters(self) -> int:
-        """Count how many nome_do_produto values are actually present in the
-        embedded Metabase dashboard's own iframe URL - this is ground truth
-        for what's actually filtered (confirmed present in every successful
-        run's diagnostics so far), independent of whether our own click
-        sequence happened to raise an error or not. Used as a safety net
-        against a filter click sequence that completes without error but
-        didn't actually register any selections."""
+    def set_program_filter(self, program: str | None) -> None:
+        """Restrict the Requisition Data Report to a specific Programa
+        (e.g. "TARV" for HIV/ART data) via the dashboard's "Programa"
+        filter widget, then wait for the (re-filtered) results table
+        again. A no-op if program is falsy/None - the report's default
+        program scope (everything) is left as-is.
+
+        CONFIRMED via a real diagnostics capture: the "Programa" widget's
+        own label/trigger opens successfully by direct analogy with "Nome
+        do produto"'s pattern, but it is otherwise a DIFFERENT widget type,
+        not the same Mantine PillsInput+Combobox - it's a checkbox list.
+        Each option is a real <input type="checkbox"
+        data-testid="{value}-filter-value">, not a role="option" div (an
+        earlier version of this method assumed the latter and never found
+        a match). The search input happens to share the same placeholder
+        text as the product widget's, but has its own distinct
+        data-testid - see report.program_filter_search_input. The apply
+        button is confirmed to be the same aria-label="Add filter" button
+        used by the product filter.
+
+        Verification (filters.verify_applied) assumes the resulting
+        dashboard URL uses a "programa" query parameter, by analogy with
+        the confirmed "nome_do_produto" - not independently confirmed.
+        """
+        assert self.page is not None
+        if not program:
+            log.info("No program filter configured - leaving the report's default program scope as-is")
+            return
+
+        log.info("Opening the 'Programa' filter widget")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.program_filter_widget"), timeout_ms=15000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("program_filter_widget_not_found")
+            raise ScraperError(f"Could not open the program filter widget: {e}") from e
+
+        log.info("Selecting program: %s", program)
+        try:
+            search_input = self.first_match(
+                self.cfg.selectors("report.program_filter_search_input"), timeout_ms=10000
+            )
+            search_input.fill(program)
+            # checkbox list, not role="option" divs - see docstring above.
+            # CONFIRMED via a real diagnostics capture that this checkbox
+            # click can silently fail to register (no "checked" attribute
+            # afterward, matching widget's own "Add filter" button stayed
+            # disabled) - verify-and-retry rather than trust a single
+            # click, same defensive pattern used for Malawi's select2
+            # flakiness.
+            checkbox_selector = f'input[data-testid="{program}-filter-value"]'
+            checkbox = self.first_match(
+                [checkbox_selector, f'label:has-text("{program}")'], timeout_ms=10000
+            )
+            checked = False
+            for attempt in range(1, 4):
+                self._click(checkbox)
+                try:
+                    cb = self.first_match([checkbox_selector], timeout_ms=2000)
+                    if cb.is_checked():
+                        checked = True
+                        break
+                except ScraperError:
+                    pass
+                log.warning(
+                    "Checkbox for program %r did not register as checked "
+                    "(attempt %d/3) - retrying", program, attempt,
+                )
+            if not checked:
+                raise ScraperError(
+                    f"Checkbox for program {program!r} never registered as "
+                    f"checked after 3 attempts"
+                )
+        except ScraperError as e:
+            self.dump_diagnostics("program_filter_option_not_found")
+            raise ScraperError(
+                f"Could not find/select the program option {program!r}: {e}"
+            ) from e
+
+        log.info("Applying the program filter")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.product_filter_apply_button"), timeout_ms=10000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("program_filter_apply_button_not_found")
+            raise ScraperError(f"Could not find the program filter's apply button: {e}") from e
+
+        log.info("Clicking the dashboard-level Apply banner to commit the program filter change")
+        try:
+            self._click(self.first_match(
+                self.cfg.selectors("report.dashboard_apply_button"), timeout_ms=10000
+            ))
+        except ScraperError as e:
+            self.dump_diagnostics("dashboard_apply_button_not_found")
+            raise ScraperError(f"Could not find the dashboard-level Apply banner: {e}") from e
+
+        self._wait_networkidle()
+        self._wait_for_results_table()
+
+        if self.cfg.get("filters.verify_applied", True):
+            applied_count = self._count_applied_filter_values("programa")
+            if applied_count < 1:
+                self.dump_diagnostics("program_filter_verification_failed")
+                raise ScraperError(
+                    f"Program filter verification failed: requested "
+                    f"program {program!r} but the report's own embedded "
+                    f"dashboard URL shows no 'programa' value applied "
+                    f"(this parameter name is a guess, not confirmed - if "
+                    f"the URL uses a different name, this check will "
+                    f"always fail; check the diagnostics dump and either "
+                    f"fix the param name here or set "
+                    f"filters.verify_applied: false to disable this check)."
+                )
+            log.info("Verified program filter actually applied")
+
+    def _count_applied_filter_values(self, url_param_name: str) -> int:
+        """Count how many values for the given Metabase dashboard URL query
+        parameter are actually present in the embedded iframe's own URL -
+        this is ground truth for what's actually filtered (confirmed
+        present in every successful run's diagnostics so far, for
+        "nome_do_produto"), independent of whether our own click sequence
+        happened to raise an error or not. Used as a safety net against a
+        filter click sequence that completes without error but didn't
+        actually register any selection.
+        """
         assert self.page is not None
         for frame in self.page.frames:
-            if "nome_do_produto" in frame.url or "metabase" in frame.url.lower():
+            if url_param_name in frame.url or "metabase" in frame.url.lower():
                 parsed = urlparse(frame.url)
                 qs = parse_qs(parsed.query)
-                return len(qs.get("nome_do_produto", []))
+                return len(qs.get(url_param_name, []))
         return 0
 
     # ---------------------------------------------------------------- download
