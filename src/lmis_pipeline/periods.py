@@ -59,6 +59,35 @@ def month_range(start: tuple[int, int], end: tuple[int, int]) -> list[tuple[int,
     return months
 
 
+def resolve_historical_end(
+    raw_value: str, n_months: int, offset_months: int, today: date | None = None
+) -> tuple[int, int]:
+    """Resolve filters.historical_end to a concrete (year, month).
+
+    A literal date string (e.g. "01/05/2026") is parsed directly - same
+    as before. The special value "auto" instead computes the month
+    immediately BEFORE the regular (non-historical) run's own rolling
+    window currently starts, so there's never a gap between the two.
+
+    CONFIRMED to be a real, not hypothetical, risk: a fixed
+    historical_end left the regular run's rolling window (relative to
+    today, unlike historical_end) to drift forward as time passed -
+    leaving a month uncovered by EITHER mode once enough time had gone
+    by since historical_end was last set (June 2026, for both MZ and MW,
+    by the time this was caught). "auto" removes the need to keep
+    historical_end updated by hand to avoid this recurring every month.
+    """
+    if str(raw_value).strip().lower() == "auto":
+        today = today or date.today()
+        regular_start = month_window(n_months, offset_months, today=today)[0]
+        year, month = regular_start
+        month -= 1
+        if month == 0:
+            month, year = 12, year - 1
+        return (year, month)
+    return parse_ddmmyyyy_to_year_month(raw_value)
+
+
 def parse_ddmmyyyy_to_year_month(s: str) -> tuple[int, int]:
     """Parse a 'DD/MM/YYYY' date string (matching this project's own
     Period output format) into (year, month) - the day is ignored, since

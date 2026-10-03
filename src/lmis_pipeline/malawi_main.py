@@ -21,7 +21,13 @@ from .config import Config, ConfigError
 from .extract import upsert_to_excel_and_csv
 from .logger import enable_file_logging, get_logger
 from .malawi_scraper import ScraperError, open_browser
-from .periods import month_abbr_period, month_range, month_window, parse_ddmmyyyy_to_year_month
+from .periods import (
+    month_abbr_period,
+    month_range,
+    month_window,
+    parse_ddmmyyyy_to_year_month,
+    resolve_historical_end,
+)
 from .product_matching import filter_to_known_products, load_product_category_list, match_product_category
 from .schema_validation import MALAWI_SUMMARY_SCHEMA, validate_extract
 
@@ -197,15 +203,17 @@ def run(cfg: Config) -> tuple[Path, Path]:
         # takes an explicit period per generation, unlike Mozambique's
         # relative-only "Previous N months" widget).
         start = parse_ddmmyyyy_to_year_month(cfg.get("filters.historical_start"))
-        end = parse_ddmmyyyy_to_year_month(cfg.get("filters.historical_end"))
+        end = resolve_historical_end(
+            cfg.get("filters.historical_end"), n_months=n_months, offset_months=offset_months,
+        )
         periods = [month_abbr_period(y, m) for y, m in month_range(start, end)]
         base_name = cfg.get("output.master_basename", "LMIS")
         cfg.data.setdefault("output", {})["master_basename"] = f"{base_name}_hist"
         log.info(
             "HISTORICAL MODE: will generate the report for %d period(s) "
-            "from %s to %s, writing to %s_hist",
+            "from %s to %s (resolved from historical_end=%r), writing to %s_hist",
             len(periods), cfg.get("filters.historical_start"),
-            cfg.get("filters.historical_end"), base_name,
+            end, cfg.get("filters.historical_end"), base_name,
         )
     else:
         periods = recent_month_periods(n_months, offset=offset_months)
@@ -279,7 +287,14 @@ def run(cfg: Config) -> tuple[Path, Path]:
                             f"{landing_path} for diagnosis."
                         )
 
-            result = upsert_to_excel_and_csv(df, cfg, text_format_columns=["Period"])
+            result = upsert_to_excel_and_csv(
+                df, cfg, text_format_columns=["Period"],
+                # Same selective-dtype fix as Mozambique's - prevents
+                # pandas' type inference from stripping a leading zero on
+                # re-read, without ALSO forcing genuinely numeric columns
+                # (e.g. "AMC", "Closing balance (SOH)") to text.
+                text_columns=["Facility Code", "Product Code"],
+            )
             log.info("Upserted period %s into master files at %s", period, result)
 
     if result is None:

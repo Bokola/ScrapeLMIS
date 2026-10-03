@@ -19,7 +19,13 @@ from .config import Config, ConfigError
 from .extract import read_downloaded_file, upsert_to_excel_and_csv
 from .landing import stage_raw_download
 from .logger import enable_file_logging, get_logger
-from .periods import chunk_month_range, month_bounds_to_widget_dates, month_window, parse_ddmmyyyy_to_year_month
+from .periods import (
+    chunk_month_range,
+    month_bounds_to_widget_dates,
+    month_window,
+    parse_ddmmyyyy_to_year_month,
+    resolve_historical_end,
+)
 from .product_matching import (
     filter_to_known_products,
     load_product_category_list,
@@ -282,16 +288,21 @@ def run(cfg: Config, baseline_path: Path | None = None) -> tuple[Path, Path]:
 
     if historical:
         start = parse_ddmmyyyy_to_year_month(cfg.get("filters.historical_start"))
-        end = parse_ddmmyyyy_to_year_month(cfg.get("filters.historical_end"))
+        end = resolve_historical_end(
+            cfg.get("filters.historical_end"),
+            n_months=cfg.get("filters.output_period_count", 4),
+            offset_months=cfg.get("filters.output_period_offset", 0),
+        )
         chunk_months = cfg.get("filters.historical_chunk_months", 3)
         chunks = chunk_month_range(start, end, chunk_size=chunk_months)
         base_name = cfg.get("output.master_basename", "LMIS")
         cfg.data.setdefault("output", {})["master_basename"] = f"{base_name}_hist"
         log.info(
             "HISTORICAL MODE: will download %d chunk(s) of up to %d "
-            "month(s) each, from %s to %s, writing to %s_hist",
+            "month(s) each, from %s to %s (resolved from historical_end=%r), "
+            "writing to %s_hist",
             len(chunks), chunk_months, cfg.get("filters.historical_start"),
-            cfg.get("filters.historical_end"), base_name,
+            end, cfg.get("filters.historical_end"), base_name,
         )
     else:
         chunks = [None]  # single pass using the regular relative "Previous N months" filter
@@ -326,7 +337,9 @@ def run(cfg: Config, baseline_path: Path | None = None) -> tuple[Path, Path]:
         landing_path = stage_raw_download(downloaded_path, cfg)
         log.info("Staged raw download to %s", landing_path)
 
-        df = read_downloaded_file(downloaded_path)
+        df = read_downloaded_file(
+            downloaded_path, text_columns=["Código da instalação", "Código do produto"]
+        )
 
         validation = validate_extract(df, schema=LMIS_REQUISITION_SCHEMA)
         if not validation.ok:
@@ -364,6 +377,7 @@ def run(cfg: Config, baseline_path: Path | None = None) -> tuple[Path, Path]:
         df_translated = translate_and_enrich(df, product_category_list=product_category_list)
         result = upsert_to_excel_and_csv(
             df_translated, cfg, second_header=SECOND_HEADER_ROW, text_format_columns=["Period"],
+            text_columns=["Installation code", "Product Code"],
             # Historical mode skips the .xlsx write on every intermediate
             # chunk (see upsert_to_excel_and_csv's own docstring for why -
             # confirmed via direct measurement that rewriting an
@@ -402,6 +416,7 @@ def run(cfg: Config, baseline_path: Path | None = None) -> tuple[Path, Path]:
         result = upsert_to_excel_and_csv(
             pd.DataFrame(columns=df_translated.columns), cfg,
             second_header=SECOND_HEADER_ROW, text_format_columns=["Period"],
+            text_columns=["Installation code", "Product Code"],
             write_xlsx=True, read_existing_from="csv",
         )
         log.info("Historical .xlsx written at %s", result)

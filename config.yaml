@@ -112,11 +112,13 @@ reconciliation:
 
 filters:
   # Optional: restrict the Requisition Data Report's "Período de análise"
-  # filter to the previous N months (e.g. 4 -> "previous 4 months").
+  # filter to the previous N months (e.g. 5 -> "previous 5 months").
   # Leave null/0 to skip this and leave SIMAM's own default period as-is
   # (confirmed default: 3 months, i.e. "past3months~" in the embedded
-  # dashboard's own URL).
-  period_months: 4
+  # dashboard's own URL). Kept at output_period_count + 1 (see below) -
+  # the "+1" covers the current month, which the site always includes in
+  # its trailing window but the client-side trim below always discards.
+  period_months: 5
 
   # Client-side trim applied AFTER download, per explicit request: SIMAM's
   # own period widget above only supports a trailing span ending at the
@@ -125,11 +127,11 @@ filters:
   # downloaded data down to exactly it afterward (see main.py's
   # filter_to_period_window()). output_period_offset=0 would be a no-op -
   # the site's own trailing window already matches that case. Currently
-  # set to keep the last 3 months excluding the current one - e.g. run in
-  # September -> June, July, August; run in October -> July, August,
-  # September. Note this is a ROLLING lag from whenever the pipeline
-  # actually runs, not fixed calendar months.
-  output_period_count: 3
+  # set to keep the last 4 months excluding the current one, per explicit
+  # request - e.g. run in September -> May, June, July, August; run in
+  # October -> June, July, August, September. Note this is a ROLLING lag
+  # from whenever the pipeline actually runs, not fixed calendar months.
+  output_period_count: 4
   output_period_offset: 1
 
   # Historical backfill switch, per explicit request. When true, IGNORES
@@ -157,9 +159,19 @@ filters:
   # target months are still enforced by a client-side trim afterward
   # (main.py's filter_to_absolute_period_range()) regardless of how the
   # widget itself interprets the padded dates.
+  # historical_end: "auto" (the default) resolves to the month
+  # immediately before the regular run's own rolling window currently
+  # starts, so there's never a gap between the two - a fixed date here
+  # instead would drift out of sync as time passes, since the regular
+  # run's window is relative to TODAY and this wouldn't be. CONFIRMED to
+  # be a real, not hypothetical, problem: a fixed "01/05/2026" here left
+  # June 2026 covered by NEITHER mode once enough time had passed since
+  # it was set (caught via direct report, for both MZ and MW). Set an
+  # explicit "DD/MM/YYYY" date instead only for a one-off backfill of a
+  # SPECIFIC range that shouldn't track the regular run's window.
   download_historical: false
   historical_start: "01/01/2024"
-  historical_end: "01/05/2026"
+  historical_end: "auto"
   historical_chunk_months: 3
 
   # Optional: restrict the Requisition Data Report to a specific Programa
