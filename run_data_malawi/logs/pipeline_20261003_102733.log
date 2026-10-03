@@ -1,0 +1,75 @@
+2026-10-03 10:27:33 INFO     __main__: Logging this run to run_data_malawi\logs\pipeline_20261003_102733.log
+2026-10-03 10:27:33 INFO     __main__: Will generate the report for 4 period(s): ['Jun2026', 'Jul2026', 'Aug2026', 'Sep2026']
+2026-10-03 10:27:33 INFO     __main__: Loaded 31 product/category mapping(s) from data\LMIS_HIV_category.xlsx
+2026-10-03 10:27:35 INFO     lmis_pipeline.scraper_base: Found saved session state at run_data_malawi\storage_state.json
+2026-10-03 10:27:35 INFO     lmis_pipeline.scraper_base: Applied playwright-stealth evasions to browser context
+2026-10-03 10:27:35 INFO     lmis_pipeline.malawi_scraper: Verifying saved session is still valid
+2026-10-03 10:27:40 INFO     lmis_pipeline.malawi_scraper: Saved session is valid - skipping login
+2026-10-03 10:27:40 INFO     __main__: === Period: Jun2026 ===
+2026-10-03 10:27:40 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-10-03 10:27:40 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-10-03 10:27:40 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-10-03 10:27:42 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: HIV
+2026-10-03 10:27:43 INFO     lmis_pipeline.malawi_scraper: Selecting Period Name: Jun2026
+2026-10-03 10:27:44 INFO     lmis_pipeline.malawi_scraper: Selecting xlsx format
+2026-10-03 10:27:44 INFO     lmis_pipeline.malawi_scraper: Clicking Generate and waiting for the file
+2026-10-03 10:29:01 INFO     lmis_pipeline.malawi_scraper: Saved downloaded results to run_data_malawi\downloads\20261003T102859_lmis_summary_by_facility_hiv_jun2026.xlsx
+2026-10-03 10:29:15 INFO     __main__: Staged raw download (as CSV) to run_data_malawi\landing\LMIS_MW_01-06-2026.csv
+2026-10-03 10:29:15 INFO     __main__: Staged raw download for Jun2026 to run_data_malawi\landing\LMIS_MW_01-06-2026.csv
+2026-10-03 10:29:28 INFO     __main__: Parsed 14411 rows, 17 columns (incl. Period) from run_data_malawi\downloads\20261003T102859_lmis_summary_by_facility_hiv_jun2026.xlsx
+2026-10-03 10:29:28 INFO     lmis_pipeline.product_matching: Filtered to master product list: 14411 row(s) -> 11142 row(s) kept (30 of 40 distinct product name(s) matched)
+2026-10-03 10:29:28 INFO     lmis_pipeline.product_matching: Dropped 10 distinct product name(s) with no confident match: ['Cryptococcal Antigen (CrAg LFA), Kit of 50', 'DBS Bundles, 70 microlitre, Pack of 50 Tests', 'Determine Hepatitis B tests, pack of 100 tests', 'Determine Syphilis pack of 100 tests', 'Entecavir 0.5mg tablets, 30 tablets', 'Hepatitis C rapid test Bioline HCV, Kit', 'Isoniazid/Rifapentine\xa0300/300mg pack of 36 tablets', 'Paclitaxel 6mg/ml inj 50ml (300mg), vials', 'Pima catridges for CD4 Count, 100s', 'Visitect CD4 + T cells Advanced Disease Rapid tests, 25 tests']
+2026-10-03 10:29:40 INFO     lmis_pipeline.extract: Upsert: 22768 existing + 11142 new rows -> 33910 after dedup on ['Facility Code', 'Product Code', 'Period'] (0 row(s) updated in place)
+2026-10-03 10:30:02 INFO     lmis_pipeline.extract: Wrote 33910 total row(s) to run_data_malawi\extracts\LMIS_MW_HIV_auto.csv and run_data_malawi\extracts\LMIS_MW_HIV.xlsx
+2026-10-03 10:30:02 INFO     __main__: Upserted period Jun2026 into master files at (WindowsPath('run_data_malawi/extracts/LMIS_MW_HIV.xlsx'), WindowsPath('run_data_malawi/extracts/LMIS_MW_HIV_auto.csv'))
+2026-10-03 10:30:02 INFO     __main__: === Period: Jul2026 ===
+2026-10-03 10:30:02 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-10-03 10:30:02 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-10-03 10:30:02 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-10-03 10:30:02 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: HIV
+2026-10-03 10:30:04 INFO     lmis_pipeline.malawi_scraper: Selecting Period Name: Jul2026
+2026-10-03 10:30:04 INFO     lmis_pipeline.malawi_scraper: Selecting xlsx format
+2026-10-03 10:30:04 INFO     lmis_pipeline.malawi_scraper: Clicking Generate and waiting for the file
+2026-10-03 10:30:34 INFO     lmis_pipeline.malawi_scraper: Saved downloaded results to run_data_malawi\downloads\20261003T103033_lmis_summary_by_facility_hiv_jul2026.xlsx
+2026-10-03 10:30:49 INFO     __main__: Staged raw download (as CSV) to run_data_malawi\landing\LMIS_MW_01-07-2026.csv
+2026-10-03 10:30:49 INFO     __main__: Staged raw download for Jul2026 to run_data_malawi\landing\LMIS_MW_01-07-2026.csv
+2026-10-03 10:31:03 INFO     __main__: Parsed 14631 rows, 17 columns (incl. Period) from run_data_malawi\downloads\20261003T103033_lmis_summary_by_facility_hiv_jul2026.xlsx
+2026-10-03 10:31:03 INFO     lmis_pipeline.product_matching: Filtered to master product list: 14631 row(s) -> 11310 row(s) kept (30 of 40 distinct product name(s) matched)
+2026-10-03 10:31:03 INFO     lmis_pipeline.product_matching: Dropped 10 distinct product name(s) with no confident match: ['Cryptococcal Antigen (CrAg LFA), Kit of 50', 'DBS Bundles, 70 microlitre, Pack of 50 Tests', 'Determine Hepatitis B tests, pack of 100 tests', 'Determine Syphilis pack of 100 tests', 'Entecavir 0.5mg tablets, 30 tablets', 'Hepatitis C rapid test Bioline HCV, Kit', 'Isoniazid/Rifapentine\xa0300/300mg pack of 36 tablets', 'Paclitaxel 6mg/ml inj 50ml (300mg), vials', 'Pima catridges for CD4 Count, 100s', 'Visitect CD4 + T cells Advanced Disease Rapid tests, 25 tests']
+2026-10-03 10:31:19 INFO     lmis_pipeline.extract: Upsert: 33910 existing + 11310 new rows -> 33922 after dedup on ['Facility Code', 'Product Code', 'Period'] (11298 row(s) updated in place)
+2026-10-03 10:31:39 INFO     lmis_pipeline.extract: Wrote 33922 total row(s) to run_data_malawi\extracts\LMIS_MW_HIV_auto.csv and run_data_malawi\extracts\LMIS_MW_HIV.xlsx
+2026-10-03 10:31:39 INFO     __main__: Upserted period Jul2026 into master files at (WindowsPath('run_data_malawi/extracts/LMIS_MW_HIV.xlsx'), WindowsPath('run_data_malawi/extracts/LMIS_MW_HIV_auto.csv'))
+2026-10-03 10:31:39 INFO     __main__: === Period: Aug2026 ===
+2026-10-03 10:31:39 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-10-03 10:31:39 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-10-03 10:31:39 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-10-03 10:31:39 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: HIV
+2026-10-03 10:31:40 INFO     lmis_pipeline.malawi_scraper: Selecting Period Name: Aug2026
+2026-10-03 10:31:41 INFO     lmis_pipeline.malawi_scraper: Selecting xlsx format
+2026-10-03 10:31:41 INFO     lmis_pipeline.malawi_scraper: Clicking Generate and waiting for the file
+2026-10-03 10:32:04 INFO     lmis_pipeline.malawi_scraper: Saved downloaded results to run_data_malawi\downloads\20261003T103203_lmis_summary_by_facility_hiv_aug2026.xlsx
+2026-10-03 10:32:17 INFO     __main__: Staged raw download (as CSV) to run_data_malawi\landing\LMIS_MW_01-08-2026.csv
+2026-10-03 10:32:17 INFO     __main__: Staged raw download for Aug2026 to run_data_malawi\landing\LMIS_MW_01-08-2026.csv
+2026-10-03 10:32:29 INFO     __main__: Parsed 14752 rows, 17 columns (incl. Period) from run_data_malawi\downloads\20261003T103203_lmis_summary_by_facility_hiv_aug2026.xlsx
+2026-10-03 10:32:29 INFO     lmis_pipeline.product_matching: Filtered to master product list: 14752 row(s) -> 11265 row(s) kept (30 of 40 distinct product name(s) matched)
+2026-10-03 10:32:29 INFO     lmis_pipeline.product_matching: Dropped 10 distinct product name(s) with no confident match: ['Cryptococcal Antigen (CrAg LFA), Kit of 50', 'DBS Bundles, 70 microlitre, Pack of 50 Tests', 'Determine Hepatitis B tests, pack of 100 tests', 'Determine Syphilis pack of 100 tests', 'Entecavir 0.5mg tablets, 30 tablets', 'Hepatitis C rapid test Bioline HCV, Kit', 'Isoniazid/Rifapentine\xa0300/300mg pack of 36 tablets', 'Paclitaxel 6mg/ml inj 50ml (300mg), vials', 'Pima catridges for CD4 Count, 100s', 'Visitect CD4 + T cells Advanced Disease Rapid tests, 25 tests']
+2026-10-03 10:32:44 INFO     lmis_pipeline.extract: Upsert: 33922 existing + 11265 new rows -> 33922 after dedup on ['Facility Code', 'Product Code', 'Period'] (11265 row(s) updated in place)
+2026-10-03 10:33:04 INFO     lmis_pipeline.extract: Wrote 33922 total row(s) to run_data_malawi\extracts\LMIS_MW_HIV_auto.csv and run_data_malawi\extracts\LMIS_MW_HIV.xlsx
+2026-10-03 10:33:04 INFO     __main__: Upserted period Aug2026 into master files at (WindowsPath('run_data_malawi/extracts/LMIS_MW_HIV.xlsx'), WindowsPath('run_data_malawi/extracts/LMIS_MW_HIV_auto.csv'))
+2026-10-03 10:33:04 INFO     __main__: === Period: Sep2026 ===
+2026-10-03 10:33:04 INFO     lmis_pipeline.malawi_scraper: Opening Reports dropdown
+2026-10-03 10:33:04 INFO     lmis_pipeline.malawi_scraper: Clicking View Reports
+2026-10-03 10:33:04 INFO     lmis_pipeline.malawi_scraper: Selecting LMIS Summary by facility
+2026-10-03 10:33:04 INFO     lmis_pipeline.malawi_scraper: Selecting Program Name: HIV
+2026-10-03 10:33:05 INFO     lmis_pipeline.malawi_scraper: Selecting Period Name: Sep2026
+2026-10-03 10:33:06 INFO     lmis_pipeline.malawi_scraper: Selecting xlsx format
+2026-10-03 10:33:06 INFO     lmis_pipeline.malawi_scraper: Clicking Generate and waiting for the file
+2026-10-03 10:33:15 INFO     lmis_pipeline.malawi_scraper: Saved downloaded results to run_data_malawi\downloads\20261003T103314_lmis_summary_by_facility_hiv_sep2026.xlsx
+2026-10-03 10:33:18 INFO     __main__: Staged raw download (as CSV) to run_data_malawi\landing\LMIS_MW_01-09-2026.csv
+2026-10-03 10:33:18 INFO     __main__: Staged raw download for Sep2026 to run_data_malawi\landing\LMIS_MW_01-09-2026.csv
+2026-10-03 10:33:21 INFO     __main__: Parsed 3477 rows, 17 columns (incl. Period) from run_data_malawi\downloads\20261003T103314_lmis_summary_by_facility_hiv_sep2026.xlsx
+2026-10-03 10:33:21 INFO     lmis_pipeline.product_matching: Filtered to master product list: 3477 row(s) -> 2660 row(s) kept (30 of 40 distinct product name(s) matched)
+2026-10-03 10:33:21 INFO     lmis_pipeline.product_matching: Dropped 10 distinct product name(s) with no confident match: ['Cryptococcal Antigen (CrAg LFA), Kit of 50', 'DBS Bundles, 70 microlitre, Pack of 50 Tests', 'Determine Hepatitis B tests, pack of 100 tests', 'Determine Syphilis pack of 100 tests', 'Entecavir 0.5mg tablets, 30 tablets', 'Hepatitis C rapid test Bioline HCV, Kit', 'Isoniazid/Rifapentine\xa0300/300mg pack of 36 tablets', 'Paclitaxel 6mg/ml inj 50ml (300mg), vials', 'Pima catridges for CD4 Count, 100s', 'Visitect CD4 + T cells Advanced Disease Rapid tests, 25 tests']
+2026-10-03 10:33:35 INFO     lmis_pipeline.extract: Upsert: 33922 existing + 2660 new rows -> 36377 after dedup on ['Facility Code', 'Product Code', 'Period'] (205 row(s) updated in place)
+2026-10-03 10:33:56 INFO     lmis_pipeline.extract: Wrote 36377 total row(s) to run_data_malawi\extracts\LMIS_MW_HIV_auto.csv and run_data_malawi\extracts\LMIS_MW_HIV.xlsx
+2026-10-03 10:33:56 INFO     __main__: Upserted period Sep2026 into master files at (WindowsPath('run_data_malawi/extracts/LMIS_MW_HIV.xlsx'), WindowsPath('run_data_malawi/extracts/LMIS_MW_HIV_auto.csv'))
