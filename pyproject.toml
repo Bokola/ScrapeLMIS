@@ -17,6 +17,7 @@ dependencies = [
 [project.scripts]
 lmis-mz-pipeline = "lmis_pipeline.main:main"
 lmis-mw-pipeline = "lmis_pipeline.malawi_main:main"
+lmis-ng-pipeline = "lmis_pipeline.nigeria_main:main"
 
 [build-system]
 requires = ["hatchling"]

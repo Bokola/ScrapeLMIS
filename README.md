@@ -56,6 +56,7 @@ cp .env.example .env
 # Full pipeline - .env is picked up automatically
 uv run python -m lmis_pipeline.main
 uv run python -m lmis_pipeline.malawi_main
+uv run python -m lmis_pipeline.nigeria_main
 # HIV
 uv run python -m lmis_pipeline.main --program TARV --product-category-file data/LMIS_HIV_category.xlsx
 uv run python -m lmis_pipeline.malawi_main --program HIV --product-category-file data/LMIS_HIV_category.xlsx
@@ -74,6 +75,7 @@ Watch it run instead of headless: set `headless: false` in `config.yaml`.
 ```
 config.yaml                          # Mozambique (SIMAM) config - everything hot-swappable
 config_malawi.yaml                   # Malawi config - entirely separate from the above
+config_nigeria.yaml                  # Nigeria config - also separate
 .env.example                         # copy to .env, fill in real credentials (both countries)
 pyproject.toml                       # dependencies + console script entry points
 src/lmis_pipeline/
@@ -82,14 +84,17 @@ src/lmis_pipeline/
   scraper_base.py     shared browser lifecycle, diagnostics, and selector-matching (BaseScraper)
   scraper.py           Mozambique/SIMAM driver: login, open report, download results (LMISScraper)
   malawi_scraper.py     Malawi driver: login, navigate, generate + download report (MalawiScraper)
+  nigeria_scraper.py    Nigeria driver: login, pick two month window, export download (NigeriaScraper)
   landing.py           raw downloaded-file staging (shared)
   extract.py            read downloaded file + upsert into master workbook (shared)
   schema_validation.py  pandera structural checks
   reconciliation.py      automated vs. manual-baseline comparison (shared)
   main.py                 Mozambique orchestrator + CLI
   malawi_main.py           Malawi orchestrator + CLI (loops over N months' periods)
+  nigeria_main.py          Nigeria orchestrator + CLI (one two month window, lands the xlsx as is)
 run_data/               gitignored - Mozambique's screenshots, landing zone, extracts, session state
 run_data_malawi/        gitignored - same, for Malawi
+run_data_nigeria/       gitignored - same, for Nigeria
 ```
 
 ## Call graph
