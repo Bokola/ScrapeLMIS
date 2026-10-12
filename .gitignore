@@ -1,5 +1,7 @@
 .env
 run_data/
+run_data_malawi/
+run_data_nigeria/
 .venv/
 __pycache__/
 *.pyc

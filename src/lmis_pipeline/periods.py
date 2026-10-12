@@ -142,3 +142,38 @@ def month_abbr_period(year: int, month: int) -> str:
     """Format (year, month) as the scraper-facing period string Malawi's
     site expects, e.g. (2026, 6) -> "Jun2026"."""
     return f"{calendar.month_abbr[month]}{year}"
+
+
+ENGLISH_MONTH_ABBR: tuple[str, ...] = (
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+)
+
+
+def latest_completed_bimonthly_window(today: date | None = None) -> tuple[int, int, int]:
+    """Return (year, first_month, second_month) of the most recent fully
+    completed two month window, for sites that publish in fixed windows
+    (Jan-Feb, Mar-Apr, May-Jun, Jul-Aug, Sep-Oct, Nov-Dec).
+
+    The window containing today is still open, so it is skipped: in October
+    that is Sep-Oct, so the answer is Jul-Aug; in November the open window
+    is Nov-Dec, so the answer is Sep-Oct. Windows never cross a year end,
+    but the answer can fall in the previous year (January -> Nov-Dec).
+    """
+    today = today or date.today()
+    current_first = today.month if today.month % 2 == 1 else today.month - 1
+    first = current_first - 2
+    year = today.year
+    if first < 1:
+        first += 12
+        year -= 1
+    return year, first, first + 1
+
+
+def bimonthly_window_label(year: int, first_month: int) -> str:
+    """Format a two month window the way the Nigeria site shows it, e.g.
+    (2026, 7) -> "Jul-Aug 2026". Uses a fixed English list rather than the
+    calendar module, which follows the machine's locale."""
+    first = ENGLISH_MONTH_ABBR[first_month - 1]
+    second = ENGLISH_MONTH_ABBR[first_month]
+    return f"{first}-{second} {year}"

@@ -1,0 +1,138 @@
+# nigeria lmis (healthlmis.ng), forward load only, family planning only
+# a separate file from config.yaml and config_malawi.yaml on purpose, so a
+# nigeria fix can never touch the other two pipelines
+#
+# confirmed means it came from you or from a real dump of the site, everything
+# else is a best effort guess, see the nigeria notes file in the repo root
+
+headless: false          # keep false until the flow below is confirmed working
+root: "./run_data_nigeria"
+
+browser:
+  stealth: true
+  locale: "en-US"        # the en gb locale renders september as sept and would break label matching
+  timezone: "Africa/Lagos"
+  storage_state_path: "./run_data_nigeria/storage_state.json"   # never written, a fresh login every run
+
+credentials:
+  # distinct env var names so all three countries can share one .env file
+  username_env: "LMIS_NG_username"
+  password_env: "LMIS_NG_pass"
+
+urls:
+  home: "https://healthlmis.ng/"
+
+timeouts:
+  navigation_ms: 60000
+  action_ms: 30000
+  short_ms: 5000
+  app_ready_ms: 120000   # element waits inside the single page app
+  sync_ms: 600000        # how long to wait for the data sync after login, then carry on anyway
+  page_load_ms: 1200000  # how long the analytics page may sit on loading, the first real run took 9 minutes
+  window_change_ms: 120000  # how long one press of prev or next may take to show
+  download_ms: 900000      # the site says the export takes several minutes
+
+retry:
+  # only the page load is retried, never the credential submit, to avoid lockouts
+  login:
+    max_attempts: 2
+    base_wait_seconds: 20
+    backoff_multiplier: 1.5
+    max_wait_seconds: 120
+    jitter_max_seconds: 5
+
+output:
+  download_dir: "./run_data_nigeria/downloads"
+  log_dir: "./run_data_nigeria/logs"
+  # one file per window, named like its landing file, holding only the family planning sheet
+  dir: "./run_data_nigeria/extracts"
+
+historical:
+  # a backfill of many windows in one browser session, newest first, each landed and extracted
+  # like a normal run. a window that already has both files is skipped, so an interrupted
+  # backfill can be started again where it stopped. a window label is written like the site
+  # shows it, like jan to feb 2025 in the example below
+  enabled: false
+  start: "Jan-Feb 2025"
+  end: "auto"            # auto is the latest completed window, or a label to stop earlier
+  skip_existing: true
+
+# messages the browser reports that the site produces by itself and that do not
+# affect the run, matched with a regex search against each message. they are
+# counted and summarised once at the end instead of being logged as warnings.
+# anything not matching is still logged as a warning
+browser_noise:
+  - name: "database checkpoint lookups"
+    pattern: "^HTTP 404: GET https?://[^/]+/db/[^/]+/_local/"
+  - name: "export file polling"
+    pattern: "^HTTP 404: GET https?://[^ ]*/stock-report-export/"
+  - name: "console echoes of a 404"
+    pattern: "^console error: Failed to load resource: the server responded with a status of 404"
+  - name: "aborted changes feed"
+    pattern: "^request failed: POST https?://[^/]+/db/[^/]+/_changes \\(net::ERR_ABORTED\\)"
+  - name: "alerts sync error in the site's own code"
+    pattern: "SYNC_ERROR, source: alerts"
+
+landing:
+  dir: "./run_data_nigeria/landing"
+  # m1 and m2 are the zero padded first and second month of the window
+  file_template: "LMIS_NG_{year}_{m1}_to_{m2}.xlsx"
+
+export:
+  # the downloaded workbook is saved untouched, these only check what the site sent
+  expected_extension: ".xlsx"
+  expected_first_sheet: "Family Planning"
+  # the export section is far down the page, this is how it is scrolled to
+  max_window_steps: 12
+  max_consecutive_failures: 2   # a historical load stops after this many windows fail in a row
+  scroll_steps: 30
+  scroll_step_px: 900
+
+selectors:
+  login:
+    # worked on the first real run, which one matched is not known, trim once it is
+    username_input:
+      - "input[name='username']"
+      - "input[name='email']"
+      - "input[type='email']"
+      - "input[autocomplete='username']"
+      - "input[type='text']"
+    password_input:
+      - "input[type='password']"
+    submit_button:
+      - "button[type='submit']"
+      - "button:has-text('Log in')"
+      - "button:has-text('Login')"
+      - "button:has-text('Sign in')"
+  app:
+    # confirmed from a real dump, only present once logged in
+    logged_in:
+      - "button.main-menu__info-toggle"
+      - "nav.main-menu__content"
+    # confirmed from a real dump, the loading spinner, on the analytics page it is shown
+    # until the time filter holding the window button has been drawn
+    page_loading:
+      - ".vs-loading"
+    # confirmed from a real dump, present while the data sync after login runs
+    sync_in_progress:
+      - ".sync-progress__updates--in-progress"
+    # confirmed by you, the analytics entry in the sidebar menu
+    analytics_menu:
+      - "span.menu-item__label-text:text-is('Analytics')"
+      - "div.menu-item__folder:has(span.menu-item__label-text:text-is('Analytics'))"
+    # confirmed by you, the analytics item in the dropdown the folder opens, it is not
+    # in the page until the folder is clicked
+    analytics_item:
+      - "span.menu-item__label.menu-item__label--smaller:text-is('Analytics')"
+    # confirmed from the real page, the label of the time filter, the only one like it
+    window_button:
+      - 'span.vs-button__label:text-matches("^[A-Za-z]{3}-[A-Za-z]{3} [0-9]{4}$")'
+    # confirmed, the buttons either side of it, each press moves one window
+    window_prev:
+      - ".time-navigator button.vs-button:has(span.vs-button__label:text-is('Prev'))"
+    window_next:
+      - ".time-navigator button.vs-button:has(span.vs-button__label:text-is('Next'))"
+    # confirmed, in the fixed bar at the bottom, next to the indicator export which is never clicked
+    export_button:
+      - "footer.vs-page-footer button.vs-button:has(span.vs-button__label:text-is('LMIS & Service Data Export'))"
+      - "button.vs-button:has(span.vs-button__label:text-is('LMIS & Service Data Export'))"
