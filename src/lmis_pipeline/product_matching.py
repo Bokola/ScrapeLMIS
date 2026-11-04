@@ -13,7 +13,7 @@ spelling, "+" vs "/" separators, different dosage formatting) - confirmed
 via real Mozambique examples, e.g. SIMAM's
 "Abacavir+Lamivudina+Dolutegravir; 90 Comp; 60mg+30mg+5mg; Comp" vs the
 master list's "Abacavir/Lamivudine/Dolutegravir (ABC/3TC/DTG)" - so exact
-matching (as used for Mozambique's 6 family-planning products) would match
+matching (as used for Mozambique's 7 family-planning products) would match
 zero HIV rows.
 
 THIS IS APPROXIMATE, not exact-match-verified - matches active-ingredient

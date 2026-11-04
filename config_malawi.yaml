@@ -10,7 +10,7 @@
 # SKILL.md did for Mozambique.
 # ----------------------------------------------------------------------------
 
-headless: false          # keep false until the flow below is confirmed working
+headless: true          # keep false until the flow below is confirmed working
 root: "./run_data_malawi" # separate from Mozambique's ./run_data entirely
 
 browser:
@@ -53,6 +53,13 @@ output:
   sheet_name: "Sheet1"                       # CONFIRMED via a real sample export
   master_basename: "LMIS_MW"       # writes BOTH LMIS_MW.xlsx and LMIS_MW.csv together, always
                                     # kept in sync - see extract.py's upsert_to_excel_and_csv()
+  # false = CSV-only: <master_basename>_auto.csv is the only master file,
+  # with no 1,048,576-row cap (that limit belongs to Excel, not CSV), so a
+  # long historical backfill can't fail on it. Open it in Excel via Data >
+  # From Text/CSV (Power Query), not by double-clicking: a double-click
+  # truncates past 1,048,576 rows, strips leading zeros from codes and may
+  # turn the Period column into dates. true restores the paired .xlsx.
+  write_xlsx: false
   download_dir: "./run_data_malawi/downloads"
   log_dir: "./run_data_malawi/logs"
 
@@ -132,7 +139,7 @@ filters:
   # explicit "DD/MM/YYYY" date instead only for a one-off backfill of a
   # SPECIFIC range that shouldn't track the regular run's window.
   download_historical: false
-  historical_start: "01/01/2024"
+  historical_start: "01/01/2023"
   historical_end: "auto"
 
   # NOT CONFIRMED to exist as a site-side filter: unlike Mozambique's
@@ -207,11 +214,11 @@ selectors:
     lmis_summary_report_link:
       - "a[href*='93d09638-4dc7-4c94-a9f2-e80b5c62408e']"
       - "a:has-text('LMIS Summary by facility')"
-    # NOT CONFIRMED: reuses the Reports dropdown as a "logged in" signal,
-    # same pattern originally tried (and later fixed) for Mozambique - if
-    # this produces the same false-negative timing issue SIMAM had, swap
-    # it for something proven to render immediately on login (e.g. a
-    # logout link/button, if Malawi's LMIS has one).
+    # Reports dropdown as a "logged in" signal. NOT enough on its own:
+    # CONFIRMED (diagnostics capture, 2026-11-03) that OpenLMIS keeps this
+    # nav rendered when the session has expired, with the login form shown
+    # over it as a modal. The scraper therefore also requires the login
+    # form (login.username_input) to be hidden - see _login_form_visible().
     logged_in_indicator:
       - "a[bs-dropdown]:has-text('Reports')"
 

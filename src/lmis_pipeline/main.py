@@ -92,10 +92,15 @@ INSTALLATION_TYPE_TO_HEALTH_CATEGORY = {
 DEFAULT_HEALTH_CATEGORY = "Health Facility"
 
 # Product Short / Category, derived from Nome do produto by exact match.
-# All six entries confirmed against a real sample file (100% match across
-# 1000 rows). "Medroxiprogesterona acetato; 5mg; Comp" (the Comp/tablet
-# form) is deliberately not tracked - dropped from config.yaml's
-# filters.products per explicit request, so it's excluded here too.
+# The first six entries were confirmed against a real sample file (100%
+# match across 1000 rows). The male condom entry was added later per
+# explicit request and is NOT yet confirmed against a real extract. Only
+# the loose condom is tracked - the SIMAM condom kit product ("Kit;
+# preservativos masculinos - 1A; ...") is deliberately excluded, also per
+# explicit request, and is not in config.yaml's filters.products either.
+# "Medroxiprogesterona acetato; 5mg; Comp" (the Comp/tablet form) is
+# deliberately not tracked - dropped from config.yaml's filters.products
+# per explicit request, so it's excluded here too.
 PRODUCT_NAME_TO_SHORT_AND_CATEGORY = {
     "Copper T380 dispositivo ; 0,2%; DIU": ("Copper IUD", "IUD"),
     "Etonogestrel ; 68 mg(Implanon NXT); Implante": ("Implanon", "Implants"),
@@ -103,6 +108,7 @@ PRODUCT_NAME_TO_SHORT_AND_CATEGORY = {
     "Levoplant ; 75mg; Implante": ("Levoplant", "Implants"),
     "Medroxiprogesterona (Sayana Press); 104mg/0.65ml; Inj": ("DMPA-SC", "Injectables"),
     "Medroxiprogesterona acetate.; 150mg/mL; Inj": ("DMPA-IM", "Injectables"),
+    "Preservativos Masculino (53mm 2mm); 53mm /2mm; Preservativo": ("Male Condom", "Male Condoms"),
 }
 
 # Portuguese month abbreviations as they appear in "Período de análise"
@@ -405,7 +411,7 @@ def run(cfg: Config, baseline_path: Path | None = None) -> tuple[Path, Path]:
             "per-chunk errors above and the diagnostics dumps for details."
         )
 
-    if historical:
+    if historical and cfg.get("output.write_xlsx", True):
         # The loop above only ever wrote the .csv (write_xlsx=False on
         # every chunk) - generate the real .xlsx exactly once here, from
         # whatever ended up in the .csv (i.e. every chunk that succeeded,
@@ -527,7 +533,8 @@ def main() -> int:
         log.error("Pipeline failed: %s", e)
         return 1
 
-    print(f"Master workbook: {xlsx_path}")
+    if cfg.get("output.write_xlsx", True):
+        print(f"Master workbook: {xlsx_path}")
     print(f"Master CSV: {csv_path}")
     return 0
 

@@ -82,13 +82,29 @@ class MalawiScraper(BaseScraper):
 
         self.login()
 
+    def _login_form_visible(self) -> bool:
+        """True if the login form is showing. OpenLMIS keeps the top nav
+        (Reports etc.) rendered from its local cache even when the session
+        token has expired, and puts the login form over it as a modal - so
+        the nav alone can't tell logged-in from logged-out. CONFIRMED via a
+        real diagnostics capture (2026-11-03): stale saved session, Reports
+        nav present, empty "Logged in as", #login-username visible."""
+        assert self.page is not None
+        for sel in self.cfg.selectors("login.username_input"):
+            try:
+                if self.page.locator(sel).first.is_visible():
+                    return True
+            except Exception:
+                continue
+        return False
+
     def _looks_logged_in(self) -> bool:
         assert self.page is not None
         try:
             self.first_match(self.cfg.selectors("nav.logged_in_indicator"), timeout_ms=5000)
-            return True
         except ScraperError:
             return False
+        return not self._login_form_visible()
 
     def _save_session(self) -> None:
         assert self.context is not None
@@ -174,6 +190,11 @@ class MalawiScraper(BaseScraper):
         try:
             self._wait_networkidle()
             self.first_match(self.cfg.selectors("nav.logged_in_indicator"), timeout_ms=30000)
+            # The nav can be present behind the login modal (see
+            # _login_form_visible), so also require the form to go away.
+            self.page.locator(
+                self.cfg.selectors("login.username_input")[0]
+            ).first.wait_for(state="hidden", timeout=30000)
         except (PWTimeout, ScraperError):
             self.dump_diagnostics("login_redirect_failed")
             for sel in self.cfg.selectors("login.login_error_banner"):
@@ -205,10 +226,14 @@ class MalawiScraper(BaseScraper):
             log.debug("No weak-password warning modal appeared - continuing")
 
     # ---------------------------------------------------------------- navigation
-    def open_lmis_summary_report(self) -> None:
+    def open_lmis_summary_report(self, _relogged_in: bool = False) -> None:
         """Click Reports -> View Reports -> LMIS Summary by facility,
         landing on the Generate Report options page. CONFIRMED markup for
-        all three links."""
+        all three links.
+
+        If the session expires (the login modal appears) partway through
+        a run, logs in again once and restarts the navigation, instead of
+        failing every remaining period against a login screen."""
         assert self.page is not None
 
         log.info("Opening Reports dropdown")
@@ -230,6 +255,18 @@ class MalawiScraper(BaseScraper):
             raise ScraperError(f"Could not click View Reports: {e}") from e
 
         self._wait_networkidle()
+
+        if self._login_form_visible():
+            if _relogged_in:
+                self.dump_diagnostics("session_lost_after_relogin")
+                raise ScraperError(
+                    "The login form appeared again right after logging back in - "
+                    "see the 'session_lost_after_relogin' diagnostics dump."
+                )
+            log.warning("Session expired (login form appeared) - logging in again")
+            self.login()
+            self.open_lmis_summary_report(_relogged_in=True)
+            return
 
         log.info("Selecting LMIS Summary by facility")
         try:

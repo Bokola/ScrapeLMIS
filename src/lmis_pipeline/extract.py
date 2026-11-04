@@ -216,6 +216,16 @@ def upsert_to_excel_and_csv(
     numbers - confirmed via explicit report. None (default) applies no
     dtype override at all.
     """
+    if not cfg.get("output.write_xlsx", True):
+        # CSV-only mode (output.write_xlsx: false): the .csv is the sole
+        # master file, so it must also be what the current state is read
+        # from - a leftover .xlsx from before the switch would otherwise
+        # be preferred by "auto" and silently drop every row written
+        # since. No row limit applies to the .csv itself (Excel's
+        # 1,048,576-row cap is a limit of Excel, not of the file format).
+        write_xlsx = False
+        read_existing_from = "csv"
+
     out_dir = Path(cfg.get("output.dir", "./run_data/extracts"))
     out_dir.mkdir(parents=True, exist_ok=True)
     base_name = cfg.get("output.master_basename", "LMIS")
@@ -240,7 +250,7 @@ def upsert_to_excel_and_csv(
     read_dtype = {col: str for col in text_columns} if text_columns else None
     if read_existing_from == "csv":
         if csv_path.exists():
-            existing = pd.read_csv(csv_path, dtype=read_dtype, skiprows=skip_second_row)
+            existing = pd.read_csv(csv_path, dtype=read_dtype, skiprows=skip_second_row, encoding="utf-8-sig")
     elif read_existing_from == "xlsx":
         if xlsx_path.exists():
             existing = pd.read_excel(xlsx_path, sheet_name=sheet_name, skiprows=skip_second_row, dtype=read_dtype)
@@ -248,7 +258,7 @@ def upsert_to_excel_and_csv(
         if xlsx_path.exists():
             existing = pd.read_excel(xlsx_path, sheet_name=sheet_name, skiprows=skip_second_row, dtype=read_dtype)
         elif csv_path.exists():
-            existing = pd.read_csv(csv_path, dtype=read_dtype, skiprows=skip_second_row)
+            existing = pd.read_csv(csv_path, dtype=read_dtype, skiprows=skip_second_row, encoding="utf-8-sig")
 
     if existing is not None:
         existing = _reorder_columns(existing, excel_columns)
@@ -298,11 +308,14 @@ def upsert_to_excel_and_csv(
             text_format_columns=text_format_columns,
         )
     else:
-        log.info(
-            "Skipping .xlsx write for this call (write_xlsx=False) - only "
-            "%s is updated; the .xlsx will be regenerated from it later",
-            csv_path,
-        )
+        if cfg.get("output.write_xlsx", True):
+            log.info(
+                "Skipping .xlsx write for this call (write_xlsx=False) - only "
+                "%s is updated; the .xlsx will be regenerated from it later",
+                csv_path,
+            )
+        else:
+            log.info("CSV-only mode (output.write_xlsx: false) - writing %s only", csv_path)
     _write_csv_with_second_header(combined, csv_path, second_header=second_header)
     log.info(
         "Wrote %d total row(s) to %s%s", len(combined), csv_path,
@@ -318,11 +331,16 @@ def _write_csv_with_second_header(
     upsert_to_excel_and_csv's second_header) directly below the real
     header row. None writes a plain single-header CSV exactly as before.
     """
+    # utf-8-sig (UTF-8 with a byte-order mark) so Excel, which assumes the
+    # system's legacy code page for a BOM-less CSV, shows accented
+    # characters (e.g. Mozambique's Portuguese header row) correctly when
+    # the file is opened directly. Readers in this module use utf-8-sig
+    # too, which strips the BOM and also accepts older BOM-less files.
     if not second_header:
-        df.to_csv(path, index=False)
+        df.to_csv(path, index=False, encoding="utf-8-sig")
         return
 
-    with open(path, "w", newline="", encoding="utf-8") as f:
+    with open(path, "w", newline="", encoding="utf-8-sig") as f:
         writer = csv.writer(f)
         writer.writerow(list(df.columns))
         writer.writerow([second_header.get(c, c) for c in df.columns])

@@ -374,7 +374,8 @@ def main() -> int:
         log.error("Pipeline failed: %s", e)
         return 1
 
-    print(f"Master workbook: {xlsx_path}")
+    if cfg.get("output.write_xlsx", True):
+        print(f"Master workbook: {xlsx_path}")
     print(f"Master CSV: {csv_path}")
     return 0
 

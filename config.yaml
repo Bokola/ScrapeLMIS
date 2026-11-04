@@ -13,7 +13,7 @@
 # see SKILL.md.
 # ----------------------------------------------------------------------------
 
-headless: false         # set true once everything is confirmed and you want it running unattended
+headless: true         # set true once everything is confirmed and you want it running unattended
 root: "./run_data"      # base dir; scraper creates root/screenshots under this
 
 browser:
@@ -87,6 +87,13 @@ output:
   sheet_name: "Query result"             # matches the sample file's sheet name
   master_basename: "LMIS_MZ"       # writes BOTH LMIS_MZ.xlsx and LMIS_MZ.csv together, always
                                     # kept in sync - see extract.py's upsert_to_excel_and_csv()
+  # false = CSV-only: <master_basename>_auto.csv is the only master file,
+  # with no 1,048,576-row cap (that limit belongs to Excel, not CSV), so a
+  # long historical backfill can't fail on it. Open it in Excel via Data >
+  # From Text/CSV (Power Query), not by double-clicking: a double-click
+  # truncates past 1,048,576 rows, strips leading zeros from codes and may
+  # turn the Period column into dates. true restores the paired .xlsx.
+  write_xlsx: false
   download_dir: "./run_data/downloads"   # where the browser's raw "Download results" file lands
   log_dir: "./run_data/logs"             # one timestamped pipeline_YYYYMMDD_HHMMSS.log per run
 
@@ -225,6 +232,7 @@ filters:
     - "Levoplant ; 75mg; Implante"
     - "Medroxiprogesterona (Sayana Press); 104mg/0.65ml; Inj"
     - "Medroxiprogesterona acetate.; 150mg/mL; Inj"
+    - "Preservativos Masculino (53mm 2mm); 53mm /2mm; Preservativo"
 
 # Selectors - ordered list, first match wins. Update here if the DOM changes.
 # "CONFIRMED" markers below mean you gave me this markup directly; everything

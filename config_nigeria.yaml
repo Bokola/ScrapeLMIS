@@ -5,7 +5,7 @@
 # confirmed means it came from you or from a real dump of the site, everything
 # else is a best effort guess, see the nigeria notes file in the repo root
 
-headless: false          # keep false until the flow below is confirmed working
+headless: true         # keep false until the flow below is confirmed working
 root: "./run_data_nigeria"
 
 browser:
@@ -53,7 +53,7 @@ historical:
   # backfill can be started again where it stopped. a window label is written like the site
   # shows it, like jan to feb 2025 in the example below
   enabled: false
-  start: "Jan-Feb 2025"
+  start: "Jan-Feb 2023"
   end: "auto"            # auto is the latest completed window, or a label to stop earlier
   skip_existing: true
 
