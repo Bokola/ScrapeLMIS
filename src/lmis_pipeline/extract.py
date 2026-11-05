@@ -15,6 +15,7 @@ from pathlib import Path
 import pandas as pd
 
 from .config import Config
+from .duplicates import apply_duplicate_policy
 from .logger import get_logger
 
 log = get_logger(__name__)
@@ -146,6 +147,7 @@ def upsert_to_excel_and_csv(
     write_xlsx: bool = True,
     read_existing_from: str = "auto",
     text_columns: list[str] | None = None,
+    duplicate_policy: dict | None = None,
 ) -> tuple[Path, Path]:
     """Write df_new into persistent master files in BOTH .xlsx and .csv
     formats, updating existing rows in place (matched on config's
@@ -215,6 +217,13 @@ def upsert_to_excel_and_csv(
     "Opening balance", "Theoretical stock") come back as text instead of
     numbers - confirmed via explicit report. None (default) applies no
     dtype override at all.
+
+    duplicate_policy, if given (config's duplicates section), cleans rows
+    sharing a dedup_key in both df_new and the existing master before they
+    are merged - see duplicates.apply_duplicate_policy(). Without it, rows
+    repeating a key inside one download are written as-is when no master
+    exists yet, and otherwise one of them is kept arbitrarily. None
+    (default) keeps the old behaviour.
     """
     if not cfg.get("output.write_xlsx", True):
         # CSV-only mode (output.write_xlsx: false): the .csv is the sole
@@ -262,6 +271,14 @@ def upsert_to_excel_and_csv(
 
     if existing is not None:
         existing = _reorder_columns(existing, excel_columns)
+
+    if duplicate_policy:
+        # cleans duplicate keys before the merge, also when no master exists yet
+        if not dedup_key or not all(k in df_new.columns for k in dedup_key):
+            raise ValueError(f"duplicates section needs every dedup_key column in the data: {dedup_key}")
+        df_new, existing = apply_duplicate_policy(df_new, existing, dedup_key, duplicate_policy)
+
+    if existing is not None:
         key_cols_present = (
             dedup_key
             and all(k in existing.columns for k in dedup_key)

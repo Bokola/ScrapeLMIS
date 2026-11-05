@@ -563,3 +563,28 @@ dedup_key:
   - "Installation code"
   - "Product Code"
   - "Period"
+
+# rows sharing the dedup key inside one download: SIMAM's report can return
+# more than one row for the same facility + product + month (confirmed on
+# Jul to Sep 2026 data, 12 keys with two rows each). before this section
+# existed they were written to the master file as-is when it was created
+# fresh, and otherwise one of them was kept arbitrarily. handled per key
+# (see duplicates.py), for the new download AND the existing master:
+#   exact copies                      one row kept
+#   zero row beside a row with data   zero row dropped (numbers unchanged)
+#   rows with different quantities    a conflict, handled by on_conflict
+# every row removed or held back is written to report_dir as a csv
+duplicates:
+  measure_columns:
+    - "Opening balance"
+    - "Entries"
+    - "Outputs"
+    - "Settings"
+    - "Loans"
+    - "Theoretical stock"
+    - "Inventory"
+  # "exclude": leave conflicting keys out of the master file (warned, listed
+  #            in the report) and write everything else
+  # "fail":    write the report and stop before the master file is written
+  on_conflict: "exclude"
+  report_dir: "./run_data/duplicates"

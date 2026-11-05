@@ -16,6 +16,7 @@ from pathlib import Path
 import pandas as pd
 
 from .config import Config, ConfigError
+from .duplicates import DuplicateConflictError
 from .extract import read_downloaded_file, upsert_to_excel_and_csv
 from .landing import stage_raw_download
 from .logger import enable_file_logging, get_logger
@@ -384,6 +385,7 @@ def run(cfg: Config, baseline_path: Path | None = None) -> tuple[Path, Path]:
         result = upsert_to_excel_and_csv(
             df_translated, cfg, second_header=SECOND_HEADER_ROW, text_format_columns=["Period"],
             text_columns=["Installation code", "Product Code"],
+            duplicate_policy=cfg.get("duplicates"),
             # Historical mode skips the .xlsx write on every intermediate
             # chunk (see upsert_to_excel_and_csv's own docstring for why -
             # confirmed via direct measurement that rewriting an
@@ -529,7 +531,7 @@ def main() -> int:
 
     try:
         xlsx_path, csv_path = run(cfg, baseline_path=args.baseline)
-    except (PipelineError, ScraperError) as e:
+    except (PipelineError, ScraperError, DuplicateConflictError) as e:
         log.error("Pipeline failed: %s", e)
         return 1
 

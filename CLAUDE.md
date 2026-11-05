@@ -13,6 +13,7 @@
 * **Config Driven**: All selectors, URLs, retry policies, and timeouts live in `config.yaml`. Never hardcode selectors or target values in Python scripts.
 * **Target Environment**: SIMAM, an OpenLMIS-based portal at `simam.cmam.gov.mz`, hash-routed (`#!/...`).
 * **Composite Key**: Master workbook deduplication uses `Código da instalação`, `Código do produto`, `Período de análise`.
+* **Duplicate keys in a download**: SIMAM can return several rows for one facility + product + month. `duplicates.py` (config `duplicates:`) drops exact copies and zero rows beside a row with values, and handles rows with different quantities per `duplicates.on_conflict` (`exclude` or `fail`), for the new download and the existing master; every row removed or held back goes to `duplicates.report_dir`.
 * **Data Protection**: The raw downloaded file must be copied into `run_data/landing/` (via `stage_raw_download()`) before schema validation or any downstream transformation occurs.
 
 ### Coding Standards & Conventions
