@@ -2,7 +2,7 @@
 name = "lmis-pipeline"
 version = "0.1.0"
 description = "SIMAM (Mozambique) + Malawi LMIS report scrape -> stage -> validate -> upsert -> Excel pipeline"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.14"
 dependencies = [
     "playwright==1.56.0",
     "playwright-stealth>=2.0.3",
